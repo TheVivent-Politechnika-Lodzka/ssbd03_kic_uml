@@ -1,0 +1,53 @@
+@startuml
+left to right direction
+
+AbstractEntity <|- Account 
+AbstractEntity <|- AccessLevel
+AccessLevel "*" <-- "0..1" Account
+Account "0..1" <-- "0..1" AccessLevel
+
+AccessLevel <|-- ClientData
+AccessLevel <|-- EmployeeData
+AccessLevel <|-- AdminData
+
+
+abstract class AbstractEntity {
+    -long version
+
+    +hashCode(): int
+    +equals(object: AbstractEntity): boolean
+}
+
+class Account {
+ -long id
+ -String login
+ -String password
+ -boolean active
+ -boolean confirmed
+ -List<AccessLevel> accessLevels
+ .. secondary_table ..
+ -String email
+ -String firstName
+ -String lastName
+}
+
+abstract class AccessLevel {
+ -long id
+ -String accessLevel
+ -boolean active
+ -Account account
+}
+
+class ClientData {
+    
+}
+
+class EmployeeData {
+    -int 
+}
+
+class AdminData {
+    -int bannedUsers
+}
+
+@enduml

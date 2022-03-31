@@ -1,0 +1,41 @@
+' probably do wyjebania
+
+@startuml
+skinparam roundcorner 5
+skinparam linetype ortho
+skinparam shadowing false
+skinparam handwritten false
+skinparam class {
+    ' BackgroundColor #965c8a
+    ' ArrowColor #693600
+    ' BorderColor #693600
+    ArrowColor #0c4f00
+    BorderColor #0c4f00
+    BackgroundColor #19a800
+}
+
+!define primary_key(x) <b><color:#b8861b><&key></color> x</b>
+!define foreign_key(x) <color:#aaaaaa><&key></color> x
+!define column(x) <color:#efefef><&media-record></color> x
+!define table(x) entity x << (T, white) >>
+
+user }|--|| city
+
+table( account ) {
+  primary_key( id ): bigint 
+  column( isActive ): boolean 
+  column( password ): varchar(64)
+  column( confirmed ): boolean
+  
+  foreign_key( cityId ): bigint <<FK>>
+}
+
+table( personal_data ) {
+  primary_key( id ): bigint 
+  column( name ): CHARACTER VARYING 
+  column( country ): CHARACTER VARYING
+  column( postCode ): INTEGER
+}
+
+table( access_level )
+@enduml
