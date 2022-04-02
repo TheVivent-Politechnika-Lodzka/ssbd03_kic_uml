@@ -6,9 +6,9 @@ AbstractEntity <|- AccessLevel
 AccessLevel "*" <-- "0..1" Account
 Account "0..1" <-- "0..1" AccessLevel
 
-AccessLevel <|-- ClientData
-AccessLevel <|-- EmployeeData
-AccessLevel <|-- AdminData
+AccessLevel <|-- DataClient
+AccessLevel <|-- DataEmployee
+AccessLevel <|-- DataAdmin
 
 
 abstract class AbstractEntity {
@@ -38,15 +38,15 @@ abstract class AccessLevel {
  -Account account
 }
 
-class ClientData {
+class DataClient {
     
 }
 
-class EmployeeData {
+class DataEmployee {
     -int 
 }
 
-class AdminData {
+class DataAdmin {
     -int bannedUsers
 }
 
