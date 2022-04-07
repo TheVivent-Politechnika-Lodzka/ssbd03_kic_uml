@@ -1,0 +1,38 @@
+@startuml
+
+actor Guest as guest
+boundary RegisterForm as gui
+boundary MOK_Endpoint as endpoint
+entity Account as account
+boundary AuthService as service
+boundary AuthFacade as facade
+
+
+guest -> gui ++ : Przekazanie danych do formularza
+gui -> endpoint : Przekazanie danych z formularza
+
+endpoint -> account : <<create>>
+endpoint -> service : .createAccount(account)
+
+group Read Committed
+    service -> facade ++ : .createAccount(account)
+    facade -> 
+
+
+' guest -> gui ++ : disableAccount(id)
+' gui -> endpoint ++ : disableAccount(id)
+' endpoint -> service ++ : disableAccount(id) 
+
+' group Read Committed
+'     service -> facade ++ : disableAccount(id)
+'     facade -> account ** : edit(account)
+' return success
+' end
+
+' return success
+' return HTTP 200 OK
+' gui -> gui : <<render>>
+' return Informacja o zablokowaniu konta
+
+
+@enduml
