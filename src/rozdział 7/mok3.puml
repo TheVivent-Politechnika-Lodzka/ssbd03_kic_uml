@@ -12,7 +12,6 @@ entity Account as account
 admin -> gui ++ : Wyświetlenie listy użytkowników
 gui -> gui : <<render>>
 return Lista użytkowników
-
 admin -> gui ++ : disableAccount(id)
 gui -> controller ++ : disableAccount(id)
 controller -> service ++ : disableAccount(id) 
@@ -27,5 +26,6 @@ return success
 return HTTP 200 OK
 gui -> gui : <<render>>
 return Informacja o zablokowaniu konta
+
 
 @enduml
