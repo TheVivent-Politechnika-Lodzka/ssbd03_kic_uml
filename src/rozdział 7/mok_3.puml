@@ -1,0 +1,31 @@
+@startuml
+
+actor Administrator as admin
+boundary AccountPanelPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+' control EntityManager as entitymanager
+entity Account as account
+' database "Baza danych" as db
+
+admin -> gui ++ : Wyświetlenie listy użytkowników
+gui -> gui : <<render>>
+return Lista użytkowników
+
+admin -> gui ++ : disableAccount(id)
+gui -> controller ++ : disableAccount(id)
+controller -> service ++ : disableAccount(id) 
+
+group Read Committed
+    service -> facade ++ : disableAccount(id)
+    facade -> account ** : edit(account)
+return success
+end
+
+return success
+return HTTP 200 OK
+gui -> gui : <<render>>
+return Informacja o zablokowaniu konta
+
+@enduml
