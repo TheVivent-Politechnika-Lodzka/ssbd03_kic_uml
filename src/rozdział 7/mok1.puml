@@ -1,38 +1,61 @@
-@startuml
+@startuml MOK.1
 
-actor Guest as guest
-boundary RegisterForm as gui
-boundary MOK_Endpoint as endpoint
+actor Gość as guest
+boundary formularz_rejestracji_konta as gui
+boundary MOKEndpoint as endpoint
 entity Account as account
-boundary AuthService as service
-boundary AuthFacade as facade
-
+entity DataClient as clientData
+control MOKService as service
+boundary AccountFacade as accFacade
 
 guest -> gui ++ : Przekazanie danych do formularza
-gui -> endpoint : Przekazanie danych z formularza
+gui -> endpoint ++ : Przekazanie danych z formularza
 
-endpoint -> account : <<create>>
-endpoint -> service : .createAccount(account)
+alt niepowodzenie walidacji danych
+    endpoint --> gui : błąd walidacji
+else sukces
+    group Transaction.Never
 
-group Read Committed
-    service -> facade ++ : .createAccount(account)
-    facade -> 
+        endpoint -> account **: <<create>>
+        endpoint -> clientData **: <<create>>
+        endpoint -> account : setAccessLevel(clientData)
+        endpoint -> clientData: setAccount(account)
+        endpoint -> service ++ : .createAccount(account)
 
+        group Transaction.ReadCommitted
+            service -> accFacade ++: .createAccount(account)
+            note right
+                operacja kaskadowa
+                PERSIST
+                Account i DataClient
+            end note
 
-' guest -> gui ++ : disableAccount(id)
-' gui -> endpoint ++ : disableAccount(id)
-' endpoint -> service ++ : disableAccount(id) 
+            alt sukces
+                accFacade --> service : id
+            else konto o podanym loginie istnieje
+                accFacade --> service : wyjątek
+            end
 
-' group Read Committed
-'     service -> facade ++ : disableAccount(id)
-'     facade -> account ** : edit(account)
-' return success
-' end
+            deactivate accFacade
+            
+        end
 
-' return success
-' return HTTP 200 OK
-' gui -> gui : <<render>>
-' return Informacja o zablokowaniu konta
+        return komunikat
+
+    end
+    
+    return komunikat
+end
+
+return komunikat
 
 
 @enduml
+
+1. Użytkownik wprowadza dane do formularza
+2. Formularz przekazuje dane do systemu
+3. System sprawdza poprawność danych
+3a. Jeśli dane są niepoprawne, zwracany jest błąd
+4. System wprowadza dane do bazy danych, tworząc konto użytkownika
+4a. Jeśli konto o podanym loginie istnieje, zwracany jest błąd
+6. Użytkownik otrzymuje komunikat o sukcesie
