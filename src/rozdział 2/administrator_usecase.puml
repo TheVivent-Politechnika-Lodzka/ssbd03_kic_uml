@@ -1,0 +1,55 @@
+@startuml
+
+left to right direction
+skinparam packageStyle rectangle
+actor Administrator as g
+rectangle MOK {
+usecase "2. Utwórz konto" as mok2
+usecase "3. Zablokuj konto" as mok3
+usecase "4. Odblokuj konto" as mok4
+usecase "5. Dołącz poziom dostępu do konta" as mok5
+usecase "6. Odłącz poziom dostępu od konta" as mok6
+usecase "7. Zmień własne hasło" as mok7
+usecase "8. Zmień hasło innego użytkownika" as mok8
+usecase "9. Edytuj dane własnego konta" as mok9
+usecase "10. Edytuj dane konta innego użytkownika" as mok10
+usecase "11. Wyloguj" as mok11
+}
+
+rectangle MOP {
+    usecase "1. Dodaj wszczep" as mop1
+    usecase "2. Usuń wszczep" as mop2
+    usecase "3. Edytuj wszczep" as mop3
+    usecase "4. Przeglądaj szczegóły wszczepu" as mop4
+    usecase "5. Przeglądaj listę wszczepów" as mop5
+    usecase "6. Przeglądaj specjalistów"  as mop6
+    usecase "7. Przeglądaj wszystkie wizyty" as mop7
+    usecase "11. Edytuj dowolną wizytę" as mop11
+    usecase "13. Odwołaj dowolną wizytę" as mop13
+    usecase "16. Usuń ocenę wizyty" as mop16
+
+}
+
+
+g---mop1
+g-- mop5
+    mop5 <.. mop3 : extends
+    mop5 <.. mop2 : extends
+    mop5 <.. mop4 : extends
+g-- mop7
+    mop7 <.. mop11 : extends
+    mop7 <.. mop13 : extends
+
+mok2 -- g
+mok3 -- g
+mok4 -- g
+mok5 -- g
+mok6 -- g
+mok7 -- g
+mok8 -- g
+mok9 -- g
+mok10 -- g
+mok11 --- g
+
+
+@enduml
