@@ -4,12 +4,12 @@ TODO: ogarnąć transakcje czy git
 
 actor Gość as guest
 boundary formularz_rejestracji_konta as gui
-boundary MOKEndpoint as endpoint
+control MOKEndpoint as endpoint
 entity Account as account
 entity DataClient as clientData
 control MOKService as service
-boundary AccountFacade as accFacade
-boundary EmailService as emailService
+control AccountFacade as accFacade
+control EmailService as emailService
 
 guest -> gui ++ : Przekazanie danych do formularza
 gui -> endpoint ++ : Przekazanie danych z formularza
@@ -34,7 +34,7 @@ else sukces
             end note
 
             alt sukces
-                accFacade --> service : id
+                ' accFacade --> service : id
                 service -> emailService ++: .sendEmail(account)
                 deactivate
             else konto o podanym loginie istnieje
@@ -63,11 +63,12 @@ group Transaction.Never
         service -> accFacade ++: .searchAccount(code)
 
         alt sukces
+            accFacade --> service : account
             service -> account: setActive(true)
             service -> accFacade : .updateAccount(account)
         else minęło ponad 30 minut od wysłania kodu / konto nie istnieje
-            service -> service : wyjątek
-            deactivate 
+            accFacade --> service : wyjątek
+            deactivate
         end
 
     end
