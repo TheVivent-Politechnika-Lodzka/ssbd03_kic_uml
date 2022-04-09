@@ -1,53 +1,109 @@
 @startuml model
 left to right direction
 
-AbstractEntity <|- Account 
-AbstractEntity <|- AccessLevel
-AccessLevel "*" <-- "0..1" Account
-Account "0..1" <-- "0..1" AccessLevel
+' to będzie trzeba przenieść do ssbd03.mok.model
+package pl.lodz.p.it.ssbd2022.ssbd03.model {
+    AccessLevel "*" <-- "0..1" Account
+    Account "0..1" <-- "0..1" AccessLevel
 
-AccessLevel <|-- DataClient
-AccessLevel <|-- DataEmployee
-AccessLevel <|-- DataAdmin
+    AccessLevel <|-- DataClient
+    AccessLevel <|-- DataDoctor
+    AccessLevel <|-- DataAdmin
+}
 
 
-abstract class AbstractEntity {
-    -long version
+package pl.lodz.p.it.ssbd2022.ssbd03.common {
+    AbstractEntity <|- Account 
+    AbstractEntity <|- AccessLevel
+}
+
+
+abstract class AbstractEntity <<MappedSuperClass>> {
+    -UUID id
+    -Long version
 
     +hashCode(): int
     +equals(object: AbstractEntity): boolean
+    +getId(): UUID
+    +getVersion(): Long
 }
 
+
 class Account {
- -long id
- -String login
- -String password
- -boolean active
- -boolean confirmed
- -List<AccessLevel> accessLevels
- .. secondary_table ..
- -String email
- -String firstName
- -String lastName
+    {static} long serialVersionUID = 1L
+    -String login
+    -String password
+    -boolean active
+    -boolean confirmed
+    -List<AccessLevel> accessLevels
+    .. secondary_table ..
+    -String email
+    -String firstName
+    -String lastName
+    --
+    +Account()
+    ' +Account(login: String, password: String, active: boolean, confirmed: boolean, accessLevels: List<AccessLevel>, email: String, firstName: String, lastName: String)
+    +getLogin(): String
+    +getPassword(): String
+    +isActive(): boolean
+    +isConfirmed(): boolean
+    +getAccessLevels(): List<AccessLevel>
+    +getEmail(): String
+    +getFirstName(): String
+    +getLastName(): String
+    +setLogin(login: String): void
+    +setPassword(password: String): void
+    +setActive(active: boolean): void
+    +setConfirmed(confirmed: boolean): void
+    +setEmail(email: String): void
+    +setFirstName(firstName: String): void
+    +setLastName(lastName: String): void
+    +toString(): String
 }
 
 abstract class AccessLevel {
- -long id
- -String accessLevel
- -boolean active
- -Account account
+    {static} long serialVersionUID = 1L
+    -String accessLevel
+    -boolean active
+    -Account account
+    --
+    +getAccessLevel(): String
+    +isActive(): boolean
+    +getAccount(): Account
+    +setAccessLevel(accessLevel: String): void
+    +setActive(active: boolean): void
+    +setAccount(account: Account): void
+    +toString(): String
 }
 
 class DataClient {
-    
+    {static} long serialVersionUID = 1L
+    -String pesel
+    --
+    +DataClient()
+    +getPesel(): String
+    +setPesel(pesel: String): void
+    +toString(): String
 }
 
-class DataEmployee {
-    -int 
+class DataDoctor {
+    {static} long serialVersionUID = 1L
+    -String phoneNumber
+    --
+    +DataDoctor()
+    +getPhoneNumber(): String
+    +setPhoneNumber(phoneNumber: String): void
+    +toString(): String
 }
 
 class DataAdmin {
-    -int bannedUsers
+    {static} long serialVersionUID = 1L
+    -String phoneNumber
+    --
+    +DataAdmin()
+    +getPhoneNumber(): String
+    +setPhoneNumber(phoneNumber: String): void
+    +toString(): String
 }
 
 @enduml
