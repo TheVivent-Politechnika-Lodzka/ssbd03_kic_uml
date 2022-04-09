@@ -1,0 +1,88 @@
+@startuml MOK.1
+
+actor Gość as guest
+boundary formularz_rejestracji_konta as gui
+boundary MOKEndpoint as endpoint
+entity Account as account
+entity DataClient as clientData
+control MOKService as service
+boundary AccountFacade as accFacade
+boundary EmailService as emailService
+
+guest -> gui ++ : Przekazanie danych do formularza
+gui -> endpoint ++ : Przekazanie danych z formularza
+
+alt niepowodzenie walidacji danych
+    endpoint --> gui : błąd walidacji
+else sukces
+    group Transaction.Never
+
+        endpoint -> account **: <<create>>
+        endpoint -> clientData **: <<create>>
+        endpoint -> account : setAccessLevel(clientData)
+        endpoint -> clientData: setAccount(account)
+        endpoint -> service ++ : .createAccount(account)
+
+        group Transaction.ReadCommitted
+            service -> accFacade ++: .createAccount(account)
+            note right
+                operacja kaskadowa
+                PERSIST
+                Account i DataClient
+            end note
+
+            alt sukces
+                accFacade --> service : id
+                service -> emailService ++: .sendEmail(account)
+                deactivate
+            else konto o podanym loginie istnieje
+                accFacade --> service : wyjątek
+            end
+
+            deactivate accFacade
+            
+        end
+
+        return komunikat
+
+    end
+    
+    return komunikat
+end
+
+return komunikat
+
+guest -> gui ++: kliknięcie linku aktywacyjnego
+gui -> endpoint ++: przekazanie kodu aktywacyjnego
+group Transaction.Never
+    endpoint -> service ++: .activateAccount(code)
+    
+    group Transaction.ReadCommitted
+        service -> accFacade ++: .searchAccount(code)
+
+        alt sukces
+            service -> account: setActive(true)
+            service -> accFacade : .updateAccount(account)
+        else minęło ponad 30 minut od wysłania kodu / konto nie istnieje
+            service -> service : wyjątek
+            deactivate 
+        end
+
+    end
+end
+return komunikat
+return komunikat
+return komunikat
+
+@enduml
+
+1. Użytkownik wprowadza dane do formularza
+2. Formularz przekazuje dane do systemu
+3. System sprawdza poprawność danych
+3a. Jeśli dane są niepoprawne, zwracany jest błąd
+4. System wprowadza dane do bazy danych, tworząc konto użytkownika
+4a. Jeśli konto o podanym loginie istnieje, zwracany jest błąd
+6. Użytkownik otrzymuje email z kodem aktywacyjnym
+7. Użytkownik klika link aktywacyjny w ciągu 30min
+7a. Użytkownik nie klika linku aktywacyjnego, system usuwa konto
+8. konto zostaje aktywowane
