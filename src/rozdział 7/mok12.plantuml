@@ -2,45 +2,29 @@
 
 actor Gość as user
 boundary Formularz_logowania as gui
-boundary MOKEndpoint as controller
-entity CredentialDto as credential
-entity Account as account
+control MOKEndpoint as controller
 control MOKService as service
-control AccountFacade as facade
+control IdentityStore as auth
+
 
 
 user -> gui ++ : Przekazanie danych do formularza
 gui -> controller ++ : Przekazanie danych z formularza
-controller -> credential **: <<create>>
-controller -> credential : setLogin(login)
-controller -> credential : setPassword(password)
-controller -> service ++ : getAccount()
-service -> facade ++ : getAccount()
-facade --> service: Dane konta
-service --> account**  : Dane konta
-account  --> controller : Konto
-controller --> gui : HTTP 200 Konto
+controller -> service ++ : Przekazanie danych
+
+group  Transaction.ReadCommited
+service -> auth ++ : Przekazanie danych
+auth -> service : Zwrócenie tokenu
+end
+
+service -> controller : Zwrócenie tokenu
+controller --> gui : Zwrócenie tokenu
 gui --> user : Przekierowanie na stronę uwierzytelnioną 
 
 alt konto o podanych danych nie istnieje
-    facade --> service : Wyjątek
-    service --> controller : Wyjątek
+    auth --> controller : HTTP 401
     controller --> gui : HTTP 401
     gui --> user : Komunikat o błędnie wprowadzonych danych 
 end
 
 @enduml
-
-
-notatka 
-
-zaloguj gosc 
-warunek:  użytkownik musi być niezalogowany 
-1. Użytkownik klika przycisk "Zaloguj" lub ikone zalogowania na górze strony
-2. Użytkownik uzupełnia dane logowania w formularzu
-3. Użytkownik klika przycisk "Zaloguj" umieszczony pod formularzem
-4. Dane użytkownika zostają zweryfikowane 
-5. Użytkownik zostaje zalogowany
-
-3.A. Użytkownik rezygunje z operacji zalogowania 
-4.B. System zwraca informacje o błędnych danych logowania 
