@@ -7,6 +7,7 @@ entity Account as account
 entity DataClient as clientData
 control MOKService as service
 boundary AccountFacade as accFacade
+boundary EmailService as emailService
 
 guest -> gui ++ : Przekazanie danych do formularza
 gui -> endpoint ++ : Przekazanie danych z formularza
@@ -32,6 +33,8 @@ else sukces
 
             alt sukces
                 accFacade --> service : id
+                service -> emailService ++: .sendEmail(account)
+                deactivate
             else konto o podanym loginie istnieje
                 accFacade --> service : wyjątek
             end
@@ -49,6 +52,27 @@ end
 
 return komunikat
 
+guest -> gui ++: kliknięcie linku aktywacyjnego
+gui -> endpoint ++: przekazanie kodu aktywacyjnego
+group Transaction.Never
+    endpoint -> service ++: .activateAccount(code)
+    
+    group Transaction.ReadCommitted
+        service -> accFacade ++: .searchAccount(code)
+
+        alt sukces
+            service -> account: setActive(true)
+            service -> accFacade : .updateAccount(account)
+        else minęło ponad 30 minut od wysłania kodu / konto nie istnieje
+            service -> service : wyjątek
+            deactivate 
+        end
+
+    end
+end
+return komunikat
+return komunikat
+return komunikat
 
 @enduml
 
@@ -58,4 +82,7 @@ return komunikat
 3a. Jeśli dane są niepoprawne, zwracany jest błąd
 4. System wprowadza dane do bazy danych, tworząc konto użytkownika
 4a. Jeśli konto o podanym loginie istnieje, zwracany jest błąd
-6. Użytkownik otrzymuje komunikat o sukcesie
+6. Użytkownik otrzymuje email z kodem aktywacyjnym
+7. Użytkownik klika link aktywacyjny w ciągu 30min
+7a. Użytkownik nie klika linku aktywacyjnego, system usuwa konto
+8. konto zostaje aktywowane
