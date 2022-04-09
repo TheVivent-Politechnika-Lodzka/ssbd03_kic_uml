@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor Klient as g
+rectangle MOK {
+usecase "7. Zmień własne hasło" as mok7
+usecase "9. Edytuj dane własnego konta" as mok9
+usecase "11. Wyloguj" as mok11
+}
+
+rectangle MOP {
+    usecase "4. Przeglądaj szczegóły wszczepu" as mop4
+    usecase "5. Przeglądaj listę wszczepów" as mop5
+    usecase "6. Przeglądaj specjalistów"  as mop6
+    usecase "8. Przeglądaj swoje wizyty" as mop8
+    usecase "10. Edytuj swoją wizytę" as mop10
+    usecase "9. Zarezerwuj wizytę" as mop9
+    usecase "12. Odwołaj swoją wizytę" as mop12
+    usecase "15. Dodaj recenzję wszczepu" as mop15
+}
+
+g-- mop6
+g -- mop5
+    mop5 <.. mop4 : extends
+g - mop8
+g -- mop9
+    mop8 <.. mop10 : extends
+    mop8 <.. mop12 : extends
+g -- mop15
+
+mok7 -- g
+mok9 -- g
+mok11 -- g
+@enduml
+@enduml
