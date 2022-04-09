@@ -1,4 +1,6 @@
+TODO: ogarnąć transakcje czy git 
 @startuml MOK.1
+
 
 actor Gość as guest
 boundary formularz_rejestracji_konta as gui

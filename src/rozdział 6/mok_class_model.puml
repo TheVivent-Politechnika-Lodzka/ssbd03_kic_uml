@@ -1,3 +1,5 @@
+TODO: naprawić krotności itp, bo na pewno coś jest nie tak
+na pewno, AccessLevel musi (nie "może") przechowywać konto
 @startuml model
 left to right direction
 
