@@ -4,28 +4,42 @@ actor Administrator as admin
 boundary AccountPanelPage as gui
 control AccountEndpoint as controller
 control AccountService as service
-control AccountFacade as facade
-' control EntityManager as entitymanager
 entity Account as account
-' database "Baza danych" as db
+control AccountFacade as facade
 
-admin -> gui ++ : Wyświetlenie listy użytkowników
-gui -> gui : <<render>>
-return Lista użytkowników
+
 
 admin -> gui ++ : enableAccount(id)
 gui -> controller ++ : enableAccount(id)
-controller -> service ++ : enableAccount(id) 
-
-group Read Committed
-    service -> facade ++ : enableAccount(id)
-    facade -> account ** : edit(account)
-return success
+group Transaction.Never
+    controller -> service ++ : enableAccount(id) 
+    group Transaction.ReadCommitted
+        service -> facade ++ : find(account)
+        facade -> account : result
+        service -> service : <<check>>
+        service -> account : setActive(false)
+        service -> facade : updateAccount(account)
+        return success
+    end
 end
 
 return success
 return HTTP 200 OK
 gui -> gui : <<render>>
-return Informacja o zablokowaniu konta
+return Informacja o odblokowaniu konta
+
+alt użytkownik jest odblokowany
+    admin -> gui ++ : enableAccount(id)
+    gui -> controller ++ : enableAccount(id)
+    controller -> service ++ : enableAccount(id)
+        service -> facade: find(account)
+        facade -> account  : result
+        service -> service : <<check>>
+return fail
+return HTTP 403 FORBIDDEN
+gui -> gui : <<render>>
+return Użytkownik już jest odblokowany
+end
+
 
 @enduml
