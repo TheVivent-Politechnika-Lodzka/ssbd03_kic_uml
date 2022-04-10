@@ -1,5 +1,5 @@
 TODO: ogarnąć transakcje czy git 
-@startuml MOK.1
+@startuml MOK.1 - Zarejstruj
 
 
 actor Gość as guest

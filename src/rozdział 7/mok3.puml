@@ -1,4 +1,4 @@
-@startuml
+@startuml MOK.3 - Zablokuj konto
 
 actor Administrator as admin
 boundary AccountPanelPage as gui
