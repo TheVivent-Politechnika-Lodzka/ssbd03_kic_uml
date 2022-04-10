@@ -1,0 +1,31 @@
+@startuml MOK.6
+
+actor Administrator as admin
+boundary AccountPanelPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+entity Account as account
+
+admin -> gui ++ : Wygenerowanie formularza edycji użytkownika
+gui -> controller ++ : removeAccessLevel()
+controller -> service ++ : removeAccessLevel() 
+
+alt użytkownik nie posiada poziom dostępu
+    service -> facade ++ : removeAccessLevel()
+    return failure
+else użytkownik posiada poziomu dostępu
+    group Transaction.ReadCommitted
+        service -> facade ++ : removeAccessLevel()
+        facade -> account ** : edit(account)
+    return success
+    end
+end
+
+return success
+return HTTP 200 OK
+gui -> gui : <<render>>
+return Informacja o usunięciu poziomu dostępu
+
+
+@enduml

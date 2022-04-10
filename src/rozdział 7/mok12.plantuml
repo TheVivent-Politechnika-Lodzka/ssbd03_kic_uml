@@ -12,19 +12,22 @@ user -> gui ++ : Przekazanie danych do formularza
 gui -> controller ++ : Przekazanie danych z formularza
 controller -> service ++ : Przekazanie danych
 
-group  Transaction.ReadCommited
-service -> auth ++ : Przekazanie danych
-auth -> service : Zwrócenie tokenu
-end
 
-service -> controller : Zwrócenie tokenu
+
+group  Transaction.ReadCommitted
+service -> auth ++ : Przekazanie danych
+return : Zwrócenie statusu
+end
+alt konto o podanych danych istnieje
+service --> controller : Zwrócenie tokenu
 controller --> gui : Zwrócenie tokenu
 gui --> user : Przekierowanie na stronę uwierzytelnioną 
 
-alt konto o podanych danych nie istnieje
-    auth --> controller : HTTP 401
-    controller --> gui : HTTP 401
-    gui --> user : Komunikat o błędnie wprowadzonych danych 
+else konto o podanych danych nie istnieje
+    return HTTP 401
+    return HTTP 401
+    return Komunikat o błędnie wprowadzonych danych 
 end
+
 
 @enduml
