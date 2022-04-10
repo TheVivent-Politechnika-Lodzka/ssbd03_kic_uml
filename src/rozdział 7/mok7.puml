@@ -1,0 +1,32 @@
+@startuml MOK.7
+
+actor User as user
+boundary AccountPanelPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+entity Account as account
+
+user -> gui ++ : Wygenerowanie formularza edycji hasła
+gui -> controller ++ : changePassword()
+controller -> service ++ : changePassword() 
+' group Transaction. ?????
+service -> service : validatePassword()
+
+alt niepoprawne dane
+    service --> controller : failure
+else poprawne dane
+    group Transaction.ReadCommitted
+        service -> facade ++ : changePassword()
+        facade -> account ** : edit(account)
+    return success
+    end
+end
+
+return success
+return HTTP 200 OK
+gui -> gui : <<render>>
+return Informacja o zmianie hasła
+
+
+@enduml
