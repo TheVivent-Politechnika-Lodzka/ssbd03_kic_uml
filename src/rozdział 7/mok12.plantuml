@@ -1,4 +1,4 @@
-@startuml sekwencyjny
+@startuml MOK.12 - Zaloguj
 
 actor Gość as user
 boundary Formularz_logowania as gui
