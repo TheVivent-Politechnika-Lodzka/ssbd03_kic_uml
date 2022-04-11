@@ -25,7 +25,7 @@ else sukces
         endpoint -> clientData: setAccount(account)
         endpoint -> service ++ : .createAccount(account)
 
-        group Transaction.ReadCommitted
+        group Transaction.ReadCommitted <<RW>>
             service -> accFacade ++: .createAccount(account)
             note right
                 operacja kaskadowa
@@ -59,7 +59,7 @@ gui -> endpoint ++: przekazanie kodu aktywacyjnego
 group Transaction.Never
     endpoint -> service ++: .activateAccount(code)
     
-    group Transaction.ReadCommitted
+    group Transaction.ReadCommitted <<RW>>
         service -> accFacade ++: .searchAccount(code)
 
         alt sukces
