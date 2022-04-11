@@ -6,7 +6,7 @@ package pl.lodz.p.it.ssbd2022.ssbd03.mok.model {
     Account "0..1" <-- "0..1" AccessLevel : - accessLevels
 
     AccessLevel <|-- DataClient
-    AccessLevel <|-- DataDoctor
+    AccessLevel <|-- DataSpecialist
     AccessLevel <|-- DataAdmin
 }
 
@@ -42,8 +42,6 @@ class Implant {
     -String name
     -String description
     -String manufacturer
-    -String model
-    -String serialNumber
     -Integer price
     -boolean archived
     -Integer popularity
@@ -62,7 +60,7 @@ class Review {
 class Appointment {
     {static} long serialVersionUID = 1L
     -Account specialist
-    -Account patient
+    -Account client
     -Implant implant
     -DateTime startDate
     -DateTime endDate
@@ -75,7 +73,7 @@ enum Status {
     ACCEPTED
     REJECTED
     PENDING
-    DONE
+    FINNISHED
 }
 
 class Account {
@@ -137,6 +135,8 @@ abstract class AccessLevel {
 class DataClient {
     {static} long serialVersionUID = 1L
     -String pesel
+    -Collection<Appointment> appointmentCollection
+    -Collection<Review> reviewCollection
     ' --
     ' +DataClient()
     ' +getPesel(): String
@@ -144,10 +144,10 @@ class DataClient {
     ' +toString(): String
 }
 
-class DataDoctor {
+class DataSpecialist {
     {static} long serialVersionUID = 1L
     -String phoneNumber
-    -Integer salary
+    -Collection<Appointment> appointmentCollection
     ' --
     ' +DataDoctor()
     ' +getPhoneNumber(): String
