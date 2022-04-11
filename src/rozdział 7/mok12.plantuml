@@ -14,7 +14,7 @@ controller -> service ++ : Przekazanie danych
 
 
 
-group  Transaction.ReadCommitted
+group  Transaction.ReadOnly
 service -> auth ++ : Przekazanie danych
 return : Zwrócenie statusu
 end
