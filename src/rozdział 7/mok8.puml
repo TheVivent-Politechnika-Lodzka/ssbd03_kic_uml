@@ -1,6 +1,6 @@
 @startuml MOK.8
 
-actor Administator as client
+actor Administrator as client
 boundary AccountPanelPage as gui
 control AccountEndpoint as controller
 control AccountService as service
@@ -8,16 +8,16 @@ control AccountFacade as facade
 entity Account as account
 
 client -> gui ++ : Wyszukaj użytkownika
-gui -> controller ++ :  findClient()
-controller -> service ++ : findClient()
+gui -> controller ++ :  findAllUsers()
+controller -> service ++ : findAllUsers()
 group Transaction.ReadCommitted <<RO>>
-    service -> facade ++ : findClient()
-    return account
+    service -> facade ++ : findAllUser()
+    return List<account>
 end
-return account
-return account
+return List<account>
+return List<account>
 gui --> gui : <<render>>
-return Formularz edycji użytkownika
+return Formularz edycji wybranego użytkownika
 
 client -> gui ++ : Edycja hasła
 gui -> controller ++ : changePassword()
@@ -26,11 +26,19 @@ controller -> service ++ : changePassword()
 ' service -> service : validatePassword()
 ' znajdz konto
 
+group Transaction.ReadCommitted <<RO>>
+    service -> facade ++ : findUser()
+    return account
+end
+
 alt niepoprawne dane
     service -> service : validatePassword()
     service --> controller : failure
+    controller --> gui : Komunikat o błędzie
+    gui --> client : Informacja o braku zmiany hasła
 else poprawne dane
     group Transaction.ReadCommitted <<RW>>
+    
         service -> service : validatePassword()
         service -> facade ++ : changePassword()
         facade -> account ** : edit(account)

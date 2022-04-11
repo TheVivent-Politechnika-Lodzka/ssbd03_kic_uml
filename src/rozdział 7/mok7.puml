@@ -8,10 +8,10 @@ control AccountFacade as facade
 entity Account as account
 
 client -> gui ++ : Wyszukaj użytkownika
-gui -> controller ++ :  findClient()
-controller -> service ++ : findClient()
+gui -> controller ++ :  findUser()
+controller -> service ++ : findUser()
 group Transaction.ReadCommitted <<RO>>
-    service -> facade ++ : findClient()
+    service -> facade ++ : findUser()
     return account
 end
 return account
@@ -26,11 +26,19 @@ controller -> service ++ : changePassword()
 ' service -> service : validatePassword()
 ' znajdz konto
 
+group Transaction.ReadCommitted <<RO>>
+    service -> facade ++ : findUser()
+    return account
+end
+
 alt niepoprawne dane
     service -> service : validatePassword()
     service --> controller : failure
+    controller --> gui : Komunikat o błędzie
+    gui --> client : Informacja o braku zmiany hasła
 else poprawne dane
     group Transaction.ReadCommitted <<RW>>
+    
         service -> service : validatePassword()
         service -> facade ++ : changePassword()
         facade -> account ** : edit(account)
