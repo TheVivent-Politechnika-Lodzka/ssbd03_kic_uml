@@ -1,6 +1,6 @@
-@startuml MOK.7
+@startuml MOK.7 Zmiana własnego hasła
 
-actor Client as client
+actor Użytkownik as client
 boundary AccountPanelPage as gui
 control AccountEndpoint as controller
 control AccountService as service
@@ -10,7 +10,7 @@ entity Account as account
 client -> gui ++ : Wyszukaj użytkownika
 gui -> controller ++ :  findClient()
 controller -> service ++ : findClient()
-group Transaction.ReadOnly
+group Transaction.ReadCommitted <<RO>>
     service -> facade ++ : findClient()
     return account
 end
@@ -30,7 +30,7 @@ alt niepoprawne dane
     service -> service : validatePassword()
     service --> controller : failure
 else poprawne dane
-    group Transaction.ReadCommitted
+    group Transaction.ReadCommitted <<RW>>
         service -> service : validatePassword()
         service -> facade ++ : changePassword()
         facade -> account ** : edit(account)
