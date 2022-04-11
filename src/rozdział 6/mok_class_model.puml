@@ -2,7 +2,7 @@
 left to right direction
 
 ' to będzie trzeba przenieść do ssbd03.mok.model
-package pl.lodz.p.it.ssbd2022.ssbd03.model {
+package pl.lodz.p.it.ssbd2022.ssbd03.mok.model {
     AccessLevel "*" o-- "1" Account
     Account "0..1" o-- "0..1" AccessLevel
 
