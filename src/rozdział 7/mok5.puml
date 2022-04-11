@@ -7,15 +7,28 @@ control AccountService as service
 control AccountFacade as facade
 entity Account as account
 
-admin -> gui ++ : Wygenerowanie formularza edycji użytkownika
+admin -> gui ++ : Wyszukaj użytkownika
+gui -> controller ++ :  findClient()
+controller -> service ++ : findClient()
+group Transaction.ReadOnly
+    service -> facade ++ : findClient()
+    return account
+end
+return account
+return account
+gui --> gui : <<render>>
+return Formularz edycji użytkownika
+
+admin -> gui ++ : Dodanie poziomu dostępu
 gui -> controller ++ : addAccessLevel()
 controller -> service ++ : addAccessLevel() 
 
-alt użytkownik posiada poziom dostępu
-    service -> facade ++ : addAccessLevel()
-    return failure
-else użytkownik nie posiada poziomu dostępu
-    group Transaction.ReadCommitted
+group Transaction.ReadCommitted
+    alt użytkownik posiada poziom dostępu
+        service -> facade ++ : addAccessLevel()
+        return failure
+    else użytkownik nie posiada poziomu dostępu
+    
         service -> facade ++ : addAccessLevel()
         facade -> account ** : edit(account)
         return success
