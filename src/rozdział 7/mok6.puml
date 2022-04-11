@@ -12,10 +12,10 @@ gui -> controller ++ :  findAllUsers()
 controller -> service ++ : findAllUsers()
 group Transaction.ReadCommitted <<RO>>
     service -> facade ++ : findAllUsers()
-    return account
+    return List<account>
 end
-return account
-return account
+return List<account>
+return List<account>
 gui --> gui : <<render>>
 return Formularz edycji wybranego użytkownika
 
@@ -23,9 +23,17 @@ admin -> gui ++ : Usunięcie poziomu dostępu
 gui -> controller ++ : removeAccessLevel()
 controller -> service ++ : removeAccessLevel() 
 
+group Transaction.ReadCommitted <<RO>>
+    service -> facade ++ : findUser()
+    return account
+end
+
 alt użytkownik nie posiada poziom dostępu
     service -> facade ++ : removeAccessLevel()
     return failure
+    service --> controller : failure
+    controller --> gui : Komunikat o błędzie
+    gui --> admin : Informacja o braku zmiany poziomów dostępu
 else użytkownik posiada poziomu dostępu
     group Transaction.ReadCommitted <<RW>>
         service -> facade ++ : removeAccessLevel()

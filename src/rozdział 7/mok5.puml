@@ -23,12 +23,20 @@ admin -> gui ++ : Dodanie poziomu dostępu
 gui -> controller ++ : addAccessLevel()
 controller -> service ++ : addAccessLevel() 
 
-group Transaction.ReadCommitted <<RW>>
-    alt użytkownik posiada poziom dostępu
-        service -> facade ++ : addAccessLevel()
-        return failure
-    else użytkownik nie posiada poziomu dostępu
-    
+group Transaction.ReadCommitted <<RO>>
+    service -> facade ++ : findUser()
+    return account
+end
+
+
+alt użytkownik posiada poziom dostępu
+    service -> facade ++ : addAccessLevel()
+    return failure
+    service --> controller : failure
+    controller --> gui : Komunikat o błędzie
+    gui --> admin : Informacja o braku dodania poziomu dostępu
+else użytkownik nie posiada poziomu dostępu
+    group Transaction.ReadCommitted <<RW>>
         service -> facade ++ : addAccessLevel()
         facade -> account ** : edit(account)
         return success
