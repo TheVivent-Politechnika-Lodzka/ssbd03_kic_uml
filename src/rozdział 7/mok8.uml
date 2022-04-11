@@ -1,13 +1,13 @@
-@startuml MOK.6
+@startuml MOK.8
 
-actor Administrator as admin
+actor Administator as client
 boundary AccountPanelPage as gui
 control AccountEndpoint as controller
 control AccountService as service
 control AccountFacade as facade
 entity Account as account
 
-admin -> gui ++ : Wyszukaj użytkownika
+client -> gui ++ : Wyszukaj użytkownika
 gui -> controller ++ :  findClient()
 controller -> service ++ : findClient()
 group Transaction.ReadOnly
@@ -19,16 +19,20 @@ return account
 gui --> gui : <<render>>
 return Formularz edycji użytkownika
 
-admin -> gui ++ : Usunięcie poziomu dostępu
-gui -> controller ++ : removeAccessLevel()
-controller -> service ++ : removeAccessLevel() 
+client -> gui ++ : Edycja hasła
+gui -> controller ++ : changePassword()
+controller -> service ++ : changePassword() 
+' group Transaction. ?????
+' service -> service : validatePassword()
+' znajdz konto
 
-alt użytkownik nie posiada poziom dostępu
-    service -> facade ++ : removeAccessLevel()
-    return failure
-else użytkownik posiada poziomu dostępu
+alt niepoprawne dane
+    service -> service : validatePassword()
+    service --> controller : failure
+else poprawne dane
     group Transaction.ReadCommitted
-        service -> facade ++ : removeAccessLevel()
+        service -> service : validatePassword()
+        service -> facade ++ : changePassword()
         facade -> account ** : edit(account)
     return success
     end
@@ -37,7 +41,7 @@ end
 return success
 return HTTP 200 OK
 gui -> gui : <<render>>
-return Informacja o usunięciu poziomu dostępu
+return Informacja o zmianie hasła
 
 
 @enduml

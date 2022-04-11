@@ -1,22 +1,37 @@
 @startuml MOK.7
 
-actor User as user
+actor Client as client
 boundary AccountPanelPage as gui
 control AccountEndpoint as controller
 control AccountService as service
 control AccountFacade as facade
 entity Account as account
 
-user -> gui ++ : Wygenerowanie formularza edycji hasła
+client -> gui ++ : Wyszukaj użytkownika
+gui -> controller ++ :  findClient()
+controller -> service ++ : findClient()
+group Transaction.ReadOnly
+    service -> facade ++ : findClient()
+    return account
+end
+return account
+return account
+gui --> gui : <<render>>
+return Formularz edycji użytkownika
+
+client -> gui ++ : Edycja hasła
 gui -> controller ++ : changePassword()
 controller -> service ++ : changePassword() 
 ' group Transaction. ?????
-service -> service : validatePassword()
+' service -> service : validatePassword()
+' znajdz konto
 
 alt niepoprawne dane
+    service -> service : validatePassword()
     service --> controller : failure
 else poprawne dane
     group Transaction.ReadCommitted
+        service -> service : validatePassword()
         service -> facade ++ : changePassword()
         facade -> account ** : edit(account)
     return success
