@@ -8,10 +8,10 @@ control AccountFacade as facade
 entity Account as account
 
 client -> gui ++ : Wyszukaj użytkownika
-gui -> controller ++ :  findClient()
-controller -> service ++ : findClient()
+gui -> controller ++ :  findUser()
+controller -> service ++ : findUser()
 group Transaction.ReadCommitted <<RO>>
-    service -> facade ++ : findClient()
+    service -> facade ++ : findUser()
     return account
 end
 return account

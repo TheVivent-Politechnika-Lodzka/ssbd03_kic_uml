@@ -8,22 +8,22 @@ control AccountFacade as facade
 entity Account as account
 
 admin -> gui ++ : Wyszukaj użytkownika
-gui -> controller ++ :  findClient()
-controller -> service ++ : findClient()
-group Transaction.ReadOnly
-    service -> facade ++ : findClient()
+gui -> controller ++ :  findAllUsers()
+controller -> service ++ : findAllUsers()
+group Transaction.ReadCommitted <<RO>>
+    service -> facade ++ : findAllUsers()
     return account
 end
 return account
 return account
 gui --> gui : <<render>>
-return Formularz edycji użytkownika
+return Formularz edycji wybranego użytkownika
 
 admin -> gui ++ : Dodanie poziomu dostępu
 gui -> controller ++ : addAccessLevel()
 controller -> service ++ : addAccessLevel() 
 
-group Transaction.ReadCommitted
+group Transaction.ReadCommitted <<RW>>
     alt użytkownik posiada poziom dostępu
         service -> facade ++ : addAccessLevel()
         return failure
