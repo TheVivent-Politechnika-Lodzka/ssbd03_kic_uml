@@ -1,20 +1,29 @@
 @startuml model
 left to right direction
 
-' to będzie trzeba przenieść do ssbd03.mok.model
 package pl.lodz.p.it.ssbd2022.ssbd03.mok.model {
-    AccessLevel "*" o-- "1" Account
-    Account "0..1" o-- "0..1" AccessLevel
+    AccessLevel "*" <-- "1" Account : - account
+    Account "0..1" <-- "0..1" AccessLevel : - accessLevels
 
     AccessLevel <|-- DataClient
     AccessLevel <|-- DataDoctor
     AccessLevel <|-- DataAdmin
 }
 
+package pl.lodz.p.it.ssbd2022.ssbd03.mop.model {
+    Appointment "1" o---- "2" Account : - specialist \n patient
+    Appointment "1" o--- "1" Implant : - implant
+    Review "1" o- "*" Account : - account
+    Review "1" o-- "1" Implant : - implant
+    Appointment <- Status : - status
+}
 
 package pl.lodz.p.it.ssbd2022.ssbd03.common {
     AbstractEntity <|- Account 
-    AbstractEntity <|- AccessLevel
+    AbstractEntity <|-- AccessLevel
+    AbstractEntity <|--- Implant
+    AbstractEntity <|- Review
+    AbstractEntity <|- Appointment
 }
 
 
@@ -28,6 +37,46 @@ abstract class AbstractEntity <<MappedSuperClass>> {
     +getVersion(): Long
 }
 
+class Implant {
+    {static} long serialVersionUID = 1L
+    -String name
+    -String description
+    -String manufacturer
+    -String model
+    -String serialNumber
+    -Integer price
+    -boolean archived
+    -Integer popularity
+    -Duration duration
+    -List<Review> reviews
+}
+
+class Review {
+    {static} long serialVersionUID = 1L
+    -Implant implant
+    -Account author
+    -String text
+    -Date date
+}
+
+class Appointment {
+    {static} long serialVersionUID = 1L
+    -Account specialist
+    -Account patient
+    -Implant implant
+    -DateTime startDate
+    -DateTime endDate
+    -Integer price
+    -String description
+    -Status status
+}
+
+enum Status {
+    ACCEPTED
+    REJECTED
+    PENDING
+    DONE
+}
 
 class Account {
     {static} long serialVersionUID = 1L
@@ -40,34 +89,34 @@ class Account {
     -String email
     -String firstName
     -String lastName
-    --
-    +Account()
-    +Account(
-        login: String,
-        password: String,
-        active: boolean,
-        confirmed: boolean,
-        accessLevels: List<AccessLevel>,
-        email: String,
-        firstName: String,
-        lastName: String
-    )
-    +getLogin(): String
-    +getPassword(): String
-    +isActive(): boolean
-    +isConfirmed(): boolean
-    +getAccessLevels(): List<AccessLevel>
-    +getEmail(): String
-    +getFirstName(): String
-    +getLastName(): String
-    +setLogin(login: String): void
-    +setPassword(password: String): void
-    +setActive(active: boolean): void
-    +setConfirmed(confirmed: boolean): void
-    +setEmail(email: String): void
-    +setFirstName(firstName: String): void
-    +setLastName(lastName: String): void
-    +toString(): String
+    ' --
+    ' +Account()
+    ' +Account(
+    '     login: String,
+    '     password: String,
+    '     active: boolean,
+    '     confirmed: boolean,
+    '     accessLevels: List<AccessLevel>,
+    '     email: String,
+    '     firstName: String,
+    '     lastName: String
+    ' )
+    ' +getLogin(): String
+    ' +getPassword(): String
+    ' +isActive(): boolean
+    ' +isConfirmed(): boolean
+    ' +getAccessLevels(): List<AccessLevel>
+    ' +getEmail(): String
+    ' +getFirstName(): String
+    ' +getLastName(): String
+    ' +setLogin(login: String): void
+    ' +setPassword(password: String): void
+    ' +setActive(active: boolean): void
+    ' +setConfirmed(confirmed: boolean): void
+    ' +setEmail(email: String): void
+    ' +setFirstName(firstName: String): void
+    ' +setLastName(lastName: String): void
+    ' +toString(): String
 }
 
 abstract class AccessLevel {
@@ -75,44 +124,45 @@ abstract class AccessLevel {
     -String accessLevel
     -boolean active
     -Account account
-    --
-    +getAccessLevel(): String
-    +isActive(): boolean
-    +getAccount(): Account
-    +setAccessLevel(accessLevel: String): void
-    +setActive(active: boolean): void
-    +setAccount(account: Account): void
-    +toString(): String
+    ' --
+    ' +getAccessLevel(): String
+    ' +isActive(): boolean
+    ' +getAccount(): Account
+    ' +setAccessLevel(accessLevel: String): void
+    ' +setActive(active: boolean): void
+    ' +setAccount(account: Account): void
+    ' +toString(): String
 }
 
 class DataClient {
     {static} long serialVersionUID = 1L
     -String pesel
-    --
-    +DataClient()
-    +getPesel(): String
-    +setPesel(pesel: String): void
-    +toString(): String
+    ' --
+    ' +DataClient()
+    ' +getPesel(): String
+    ' +setPesel(pesel: String): void
+    ' +toString(): String
 }
 
 class DataDoctor {
     {static} long serialVersionUID = 1L
     -String phoneNumber
-    --
-    +DataDoctor()
-    +getPhoneNumber(): String
-    +setPhoneNumber(phoneNumber: String): void
-    +toString(): String
+    -Integer salary
+    ' --
+    ' +DataDoctor()
+    ' +getPhoneNumber(): String
+    ' +setPhoneNumber(phoneNumber: String): void
+    ' +toString(): String
 }
 
 class DataAdmin {
     {static} long serialVersionUID = 1L
     -String phoneNumber
-    --
-    +DataAdmin()
-    +getPhoneNumber(): String
-    +setPhoneNumber(phoneNumber: String): void
-    +toString(): String
+    ' --
+    ' +DataAdmin()
+    ' +getPhoneNumber(): String
+    ' +setPhoneNumber(phoneNumber: String): void
+    ' +toString(): String
 }
 
 @enduml

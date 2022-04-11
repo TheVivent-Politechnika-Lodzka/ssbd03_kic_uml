@@ -2,10 +2,10 @@
 
 Actor User as user 
 boundary View as gui 
+' control Local as local
 
 user -> gui ++: Nacisnięcie przycisku 
 
-gui -> gui ++: deleteToken()
+gui -> gui : deleteToken()
 
 return success
-return Zmiana widoku
