@@ -11,9 +11,10 @@ package pl.lodz.p.it.ssbd2022.ssbd03.mok.model {
 }
 
 package pl.lodz.p.it.ssbd2022.ssbd03.mop.model {
-    Appointment "1" o---- "2" Account : - specialist \n patient
-    Appointment "1" o--- "1" Implant : - implant
-    Review "1" o- "*" Account : - account
+    Appointment "1" o- "1" DataSpecialist : - specialist \n patient
+    Appointment "1" o- "1" DataClient : - client
+    Appointment "1" o-- "1" Implant : - implant
+    Review "1" o--- "*" DataClient : - author
     Review "1" o-- "1" Implant : - implant
     Appointment <- Status : - status
 }
@@ -21,9 +22,9 @@ package pl.lodz.p.it.ssbd2022.ssbd03.mop.model {
 package pl.lodz.p.it.ssbd2022.ssbd03.common {
     AbstractEntity <|- Account 
     AbstractEntity <|-- AccessLevel
-    AbstractEntity <|--- Implant
-    AbstractEntity <|- Review
-    AbstractEntity <|- Appointment
+    AbstractEntity <|- Implant
+    AbstractEntity <|--- Appointment
+    AbstractEntity <|--- Review
 }
 
 
@@ -52,15 +53,15 @@ class Implant {
 class Review {
     {static} long serialVersionUID = 1L
     -Implant implant
-    -Account author
+    -DataClient author
     -String text
     -Date date
 }
 
 class Appointment {
     {static} long serialVersionUID = 1L
-    -Account specialist
-    -Account client
+    -DataSpecialist specialist
+    -DataClient client
     -Implant implant
     -DateTime startDate
     -DateTime endDate
