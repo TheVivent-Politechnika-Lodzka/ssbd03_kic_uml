@@ -5,12 +5,13 @@ actor Gość as g
 rectangle MOK {
     usecase "1. Zarejestruj konto" as mok1
     usecase "12. Zaloguj" as mok12
+    usecase "18. Zresetuj hasło" as mok18
 }
 
 rectangle MOP {
     usecase "4. Przeglądaj szczegóły wszczepu" as mop4
     usecase "5. Przeglądaj listę wszczepów" as mop5
-    usecase "6. Przeglądaj specjalistów"  as mop6
+    usecase "6. Przeglądaj listę specjalistów"  as mop6
 }
 
 g-- mop6
@@ -18,4 +19,5 @@ g -- mop5
 mop5 <.. mop4 : extends
 mok1 -- g
 mok12 -- g
+mok18 --g
 @enduml

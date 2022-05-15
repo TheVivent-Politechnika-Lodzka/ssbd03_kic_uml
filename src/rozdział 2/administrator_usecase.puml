@@ -2,6 +2,8 @@
 
 left to right direction
 skinparam packageStyle rectangle
+skinparam linetype polyline
+
 actor Administrator as g
 rectangle MOK {
 usecase "2. Utwórz konto" as mok2
@@ -14,6 +16,9 @@ usecase "8. Zmień hasło innego użytkownika" as mok8
 usecase "9. Edytuj dane własnego konta" as mok9
 usecase "10. Edytuj dane konta innego użytkownika" as mok10
 usecase "11. Wyloguj" as mok11
+usecase "13. Przegladaj listę wszystkich kont" as mok13
+usecase "15. Przeglądaj szczegóły własnego konta" as mok15
+usecase "16. Przeglądaj szczegóły wybranego konta" as mok16
 }
 
 rectangle MOP {
@@ -22,34 +27,48 @@ rectangle MOP {
     usecase "3. Edytuj wszczep" as mop3
     usecase "4. Przeglądaj szczegóły wszczepu" as mop4
     usecase "5. Przeglądaj listę wszczepów" as mop5
-    usecase "6. Przeglądaj specjalistów"  as mop6
+    usecase "6. Przeglądaj listę specjalistów"  as mop6
     usecase "7. Przeglądaj wszystkie wizyty" as mop7
     usecase "11. Edytuj dowolną wizytę" as mop11
     usecase "13. Odwołaj dowolną wizytę" as mop13
-    usecase "16. Usuń ocenę wizyty" as mop16
+    usecase "16. Usuń recenzję wszczepu" as mop16
 
 }
 
 
 g---mop1
 g-- mop5
-    mop5 <.. mop3 : extends
+    mop4 <. mop3 : extends
     mop5 <.. mop2 : extends
     mop5 <.. mop4 : extends
+g--mop6
 g-- mop7
     mop7 <.. mop11 : extends
     mop7 <.. mop13 : extends
+    mop7 <.. mop16 : extends
 
-mok2 -- g
-mok3 -- g
-mok4 -- g
-mok5 -- g
-mok6 -- g
-mok7 -- g
-mok8 -- g
-mok9 -- g
-mok10 -- g
-mok11 --- g
+
+mok2  -g
+mok11 -g
+mok15 -g 
+    mok7 ..> mok15 : extends
+    mok9 ..> mok15 : extends
+mok13 --g
+    mok3 ..> mok13 : extends
+    mok4 ..> mok13 : extends
+    mok16 ..> mok13 : extends
+    mok10 ..> mok16 : extends
+
+    mok8 ..> mok16 : extends
+        mok5 ..> mok10 : extends
+        mok6 ..> mok10 : extends
+
+
+' tylko do wygladu
+mok2 -[hidden] mok13
+mok15 -[hidden] mok13
+mok11 -[hidden] mok13
+
 
 
 @enduml

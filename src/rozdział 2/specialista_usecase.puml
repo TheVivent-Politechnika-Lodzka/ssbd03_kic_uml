@@ -5,15 +5,15 @@ actor Specjalista as g
 rectangle MOK {
 usecase "7. Zmień własne hasło" as mok7
 usecase "9. Edytuj dane własnego konta" as mok9
+usecase "15. Przeglądaj szczegóły własnego konta" as mok15
 usecase "11. Wyloguj" as mok11
 }
 
 rectangle MOP {
     usecase "4. Przeglądaj szczegóły wszczepu" as mop4
     usecase "5. Przeglądaj listę wszczepów" as mop5
-    usecase "6. Przeglądaj specjalistów"  as mop6
+    usecase "6. Przeglądaj listę specjalistów"  as mop6
     usecase "8. Przeglądaj swoje wizyty" as mop8
-    usecase "10. Edytuj swoją wizytę" as mop10
     usecase "12. Odwołaj swoją wizytę" as mop12
     usecase "14. Oznacz wizytę jako zakończoną" as mop14
 
@@ -21,17 +21,22 @@ rectangle MOP {
 
 
 
-mop8 -[hidden]> mop10
+
 
 g-- mop6
 g -- mop5
     mop5 <.. mop4 : extends
 g -- mop8
-    mop8 <.. mop10 : extends
+    mop8 <.. mop14 : extends
     mop8 <.. mop12 : extends
-g -- mop14
 
-mok7 -- g
-mok9 -- g
+
+mok15 -- g
+    mok9 ..> mok15 : extends
+    mok7 ..> mok15 : extends
 mok11 -- g
+
+' tylko do wygladu
+mok9 -[hidden]-mok11
+
 @enduml
