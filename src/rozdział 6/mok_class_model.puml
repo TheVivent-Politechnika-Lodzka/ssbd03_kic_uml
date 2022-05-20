@@ -1,22 +1,22 @@
 @startuml model
-left to right direction
+' left to right direction
 
-package pl.lodz.p.it.ssbd2022.ssbd03.mok.model {
+package pl.lodz.p.it.ssbd2022.ssbd03.entities {
+' mok
     AccessLevel "*" <-- "1" Account : - account
     Account "0..1" <-- "0..1" AccessLevel : - accessLevels
 
     AccessLevel <|-- DataClient
     AccessLevel <|-- DataSpecialist
-    AccessLevel <|-- DataAdmin
-}
+    AccessLevel <|-- DataAdministrator
 
-package pl.lodz.p.it.ssbd2022.ssbd03.mop.model {
-    Appointment "1" o- "1" DataSpecialist : - specialist \n patient
-    Appointment "1" o- "1" DataClient : - client
+' mop
+    Appointment "1" o- "1" Account : - specialist
+    Appointment "1" o- "1" Account : - client
     Appointment "1" o-- "1" Implant : - implant
-    Review "1" o--- "*" DataClient : - author
-    Review "1" o-- "1" Implant : - implant
-    Appointment <- Status : - status
+    Review "1" o- "1" Implant : - implant
+    Review "1" o--- "*" Account : - author
+    Appointment <-- Status : - status
 }
 
 package pl.lodz.p.it.ssbd2022.ssbd03.common {
@@ -31,6 +31,8 @@ package pl.lodz.p.it.ssbd2022.ssbd03.common {
 abstract class AbstractEntity <<MappedSuperClass>> {
     -UUID id
     -Long version
+    -Instant createdAt
+    -Instant lastModified
 
     +hashCode(): int
     +equals(object: AbstractEntity): boolean
@@ -47,7 +49,6 @@ class Implant {
     -boolean archived
     -Integer popularity
     -Duration duration
-    -List<Review> reviews
 }
 
 class Review {
@@ -60,8 +61,8 @@ class Review {
 
 class Appointment {
     {static} long serialVersionUID = 1L
-    -DataSpecialist specialist
-    -DataClient client
+    -Account specialist
+    -Account client
     -Implant implant
     -DateTime startDate
     -DateTime endDate
@@ -88,34 +89,10 @@ class Account {
     -String email
     -String firstName
     -String lastName
-    ' --
-    ' +Account()
-    ' +Account(
-    '     login: String,
-    '     password: String,
-    '     active: boolean,
-    '     confirmed: boolean,
-    '     accessLevels: List<AccessLevel>,
-    '     email: String,
-    '     firstName: String,
-    '     lastName: String
-    ' )
-    ' +getLogin(): String
-    ' +getPassword(): String
-    ' +isActive(): boolean
-    ' +isConfirmed(): boolean
-    ' +getAccessLevels(): List<AccessLevel>
-    ' +getEmail(): String
-    ' +getFirstName(): String
-    ' +getLastName(): String
-    ' +setLogin(login: String): void
-    ' +setPassword(password: String): void
-    ' +setActive(active: boolean): void
-    ' +setConfirmed(confirmed: boolean): void
-    ' +setEmail(email: String): void
-    ' +setFirstName(firstName: String): void
-    ' +setLastName(lastName: String): void
-    ' +toString(): String
+    -Locale language
+
+    +addAccessLevel(accessLevel: AccessLevel): void
+    +removeAccessLevel(accessLevel: AccessLevel): void
 }
 
 abstract class AccessLevel {
@@ -123,47 +100,24 @@ abstract class AccessLevel {
     -String accessLevel
     -boolean active
     -Account account
-    ' --
-    ' +getAccessLevel(): String
-    ' +isActive(): boolean
-    ' +getAccount(): Account
-    ' +setAccessLevel(accessLevel: String): void
-    ' +setActive(active: boolean): void
-    ' +setAccount(account: Account): void
-    ' +toString(): String
 }
 
 class DataClient {
     {static} long serialVersionUID = 1L
+    -String phoneNumber
     -String pesel
-    -Collection<Appointment> appointmentCollection
-    -Collection<Review> reviewCollection
-    ' --
-    ' +DataClient()
-    ' +getPesel(): String
-    ' +setPesel(pesel: String): void
-    ' +toString(): String
 }
 
 class DataSpecialist {
     {static} long serialVersionUID = 1L
     -String phoneNumber
-    -Collection<Appointment> appointmentCollection
-    ' --
-    ' +DataDoctor()
-    ' +getPhoneNumber(): String
-    ' +setPhoneNumber(phoneNumber: String): void
-    ' +toString(): String
+    -String contactEmail
 }
 
-class DataAdmin {
+class DataAdministrator {
     {static} long serialVersionUID = 1L
     -String phoneNumber
-    ' --
-    ' +DataAdmin()
-    ' +getPhoneNumber(): String
-    ' +setPhoneNumber(phoneNumber: String): void
-    ' +toString(): String
+    -String contactEmail
 }
 
 @enduml
