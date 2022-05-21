@@ -1,5 +1,6 @@
 @startuml mop_ejb_cdi_diagram
 left to right direction
+skinparam linetype ortho
 
 package pl.lodz.p.it.ssbd2022.common {
     abstract class AbstractFacade {
