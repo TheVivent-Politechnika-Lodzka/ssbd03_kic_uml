@@ -1,0 +1,72 @@
+@startuml MOK_ejb_cdi_diagram
+
+package pl.lodz.p.it.ssbd2022.common {
+    abstract class AbstractFacade {}
+
+    abstract class AbstractManager {}
+
+    interface ManagerLocalInterface <<Interface>> {}
+}
+
+
+package pl.lodz.p.it.ssbd2022.mok {
+
+    ' ENDPOINTY
+    package cdi.endpoints {
+        interface MOKEndpointInterface <<Interface>> {
+        }
+
+        class MOKEndpoint {
+                
+        }           
+    }
+
+    ' FASADY
+    package ejb.facades {
+
+        class AccessLevelFacade {}
+
+        class AccountFacade {}
+        
+        class ActiveAccountFacade {}
+
+        class ResetPasswordFacade {}
+
+    }
+
+    ' SERWISY
+    package ejb.services {
+
+        interface MOKServiceInterface <<Interface>> {}
+
+        class MOKService {}
+
+    }
+    
+}
+
+' extend fasad
+AbstractFacade <|- AccessLevelFacade
+AbstractFacade <|- AccountFacade
+AbstractFacade <|- ActiveAccountFacade
+AbstractFacade <|- ResetPasswordFacade
+
+' extend/implement serwis
+AbstractManager <|- MOKService
+ManagerLocalInterface <|- MOKServiceInterface
+MOKServiceInterface <|- MOKService
+
+' implement endpoint
+MOKEndpointInterface <|- MOKEndpoint
+
+' wykorzystanie serwisu przez endpoint
+MOKEndpoint -> MOKService
+
+' wykorzystanie fasady przez serwis
+MOKService -> AccessLevelFacade
+MOKService -> AccountFacade
+MOKService -> ActiveAccountFacade
+MOKService -> ResetPasswordFacade
+
+
+@enduml

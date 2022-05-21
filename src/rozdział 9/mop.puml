@@ -1,0 +1,72 @@
+@startuml mop_ejb_cdi_diagram
+
+package pl.lodz.p.it.ssbd2022.common {
+    abstract class AbstractFacade {}
+
+    abstract class AbstractManager {}
+
+    interface ManagerLocalInterface <<Interface>> {}
+}
+
+
+package pl.lodz.p.it.ssbd2022.mop {
+
+    ' ENDPOINTY
+    package cdi.endpoints {
+        interface MOPEndpointInterface <<Interface>> {
+        }
+
+        class MOPEndpoint {
+                
+        }           
+    }
+
+    ' FASADY
+    package ejb.facades {
+
+        class AccessLevelFacade {}
+
+        class AccountFacade {}
+        
+        class ActiveAccountFacade {}
+
+        class ResetPasswordFacade {}
+
+    }
+
+    ' SERWISY
+    package ejb.services {
+
+        interface MOPServiceInterface <<Interface>> {}
+
+        class MOPService {}
+
+    }
+    
+}
+
+' extend fasad
+AbstractFacade <|- AccessLevelFacade
+AbstractFacade <|- AccountFacade
+AbstractFacade <|- ActiveAccountFacade
+AbstractFacade <|- ResetPasswordFacade
+
+' extend/implement serwis
+AbstractManager <|- mopService
+ManagerLocalInterface <|- mopServiceInterface
+mopServiceInterface <|- mopService
+
+' implement endpoint
+mopEndpointInterface <|- mopEndpoint
+
+' wykorzystanie serwisu przez endpoint
+mopEndpoint -> mopService
+
+' wykorzystanie fasady przez serwis
+mopService -> AccessLevelFacade
+mopService -> AccountFacade
+mopService -> ActiveAccountFacade
+mopService -> ResetPasswordFacade
+
+
+@enduml
