@@ -194,7 +194,7 @@ MOKServiceInterface <|- MOKService
 MOKEndpointInterface <|- MOKEndpoint
 
 ' wykorzystanie serwisu przez endpoint
-MOKEndpoint -> MOKService
+MOKEndpoint -> MOKServiceInterface
 
 ' wykorzystanie fasady przez serwis
 MOKService -> AccessLevelFacade
