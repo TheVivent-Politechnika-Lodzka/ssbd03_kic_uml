@@ -1,11 +1,38 @@
 @startuml mop_ejb_cdi_diagram
+left to right direction
 
 package pl.lodz.p.it.ssbd2022.common {
-    abstract class AbstractFacade {}
+    abstract class AbstractFacade {
+        -Class<T> entityClass
+        +AbstractFacade(Class<T> entityClass)
+        #{abstract} EntityManager getEntityManager()
+        #{abstract} void HashAlgorithm getHashAlgorithm()
+        +void create(T entity)
+        +void edit(T entity, String eTag)
+        +void unsafeEdit(T entity)
+        +void remove(T entity, String eTag)
+        +void unsafeRemove(T entity)
+        +T find(Object id)
+        +List findAll()
+        +PaginationData findInRange(int pageNumber, int perPage)
+        +int count()
+        -void verifyTag(AbstractEntity entity, String eTag)
+    }
 
-    abstract class AbstractManager {}
+    abstract class AbstractManager {
+        #SessionContext sessionContext
+        #Logger logger
+        -String transactionId
+        -boolean lastTransactionCommited
+        +boolean isLastTransactionCommited()
+        +void afterBegin()
+        +void beforeCompletion()
+        +void afterCompletion()
+    }
 
-    interface ManagerLocalInterface <<Interface>> {}
+    interface ManagerLocalInterface <<Interface>> {
+        +boolean isLastTransactionCommited();
+    }
 }
 
 
