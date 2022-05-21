@@ -3,7 +3,8 @@ left to right direction
 skinparam linetype ortho
 
 package pl.lodz.p.it.ssbd2022.common {
-    abstract class AbstractFacade {
+    
+    abstract class AbstractFacade< T  > {
         -Class<T> entityClass
         +AbstractFacade(Class<T> entityClass)
         #{abstract} EntityManager getEntityManager()
@@ -31,17 +32,16 @@ package pl.lodz.p.it.ssbd2022.common {
         +void afterCompletion()
     }
 
-    interface ManagerLocalInterface <<Interface>> {
+    interface ManagerLocalInterface <<Local>> {
         +boolean isLastTransactionCommited();
     }
 }
 
 
 package pl.lodz.p.it.ssbd2022.mok {
-
     ' ENDPOINTY
     package cdi.endpoints {
-        interface MOKEndpointInterface <<Interface>> {
+        interface MOKEndpointInterface {
             +Response register(@Valid RegisterClientDto registerClientDto)
             +Response registerConfirm(@Valid RegisterClientConfirmDto registerConfirmDto)
             +Response createAccount(@Valid CreateAccountDto createAccountDto)
@@ -61,7 +61,7 @@ package pl.lodz.p.it.ssbd2022.mok {
             +Response getAccount(@PathParam("login") String login)
         }
 
-        class MOKEndpoint {
+        class MOKEndpoint<<RequestScoped>> {
             #MOKServiceInterface mokServiceInterface
             #AuthContext authContext
             #AccountMapper accountMapper
@@ -90,7 +90,7 @@ package pl.lodz.p.it.ssbd2022.mok {
     ' SERWISY
     package ejb.services {
 
-        interface MOKServiceInterface <<Interface>> {
+        interface MOKServiceInterface <<Local>> {
             +String authenticate(String login, String password)
             +Account findAccountByLogin(String login)
             +Account deactivateAccount(String login, String etag)
@@ -108,7 +108,7 @@ package pl.lodz.p.it.ssbd2022.mok {
             +Account confirmResetPassword(String login, String password, String token)
         }
 
-        class MOKService<? extends AbstractManager> {
+        class MOKService<extends AbstractManager> <<Stateful>> {
             -IdentityStoreHandler identityStoreHandler
             -JWTGenerator jwtGenerator
             -HashAlgorithm hashAlgorithm
@@ -140,13 +140,38 @@ package pl.lodz.p.it.ssbd2022.mok {
     ' FASADY
     package ejb.facades {
 
-        class AccessLevelFacade {}
+        class AccessLevelFacade<extends AbstractFacade<AccessLevel>> <<Stateless>> {
+            -EntityManager entityManager
+            -HashAlgorithm hashAlgorithm
+            +AccessLevelFacade()
+            +void create(AccessLevel entity)
+        }
 
-        class AccountFacade {}
+        class AccountFacade<extends AbstractFacade<Account>> <<Stateless>> {
+            -EntityManager entityManager
+            -HashAlgorithm hashAlgorithm
+            +AccountFacade()
+            +create(Account entity)
+            +Account findByLogin(String login)
+            +PaginationData findInRangeWithPhrase(int pageNumber, int perPage, String phrase)
+        }
         
-        class ActiveAccountFacade {}
+        class ActiveAccountFacade<extends AbstractFacade<ConfirmationAccountToken>> <<Stateless>> {
+            -EntityManager entityManager
+            -HashAlgorithm hashAlgorithm
+            +ActiveAccountFacade()
+            +create(ConfirmationAccountToken entity)
+            +ConfirmationAccountToken findToken(String login)
+        }
 
-        class ResetPasswordFacade {}
+        class ResetPasswordFacade<extends AbstractFacade<ResetPasswordToken>> <<Stateless>> {
+            -EntityManager entityManager
+            -HashAlgorithm hashAlgorithm
+            +ResetPasswordFacade()
+            +ResetPasswordToken findResetPasswordToken(String login)
+            +List<ResetPasswordToken> findResetPasswordToken(Instant date)
+            +void unsafeRemove(ResetPasswordToken resetPasswordToken)
+        }
 
     }
 
