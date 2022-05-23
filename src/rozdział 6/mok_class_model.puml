@@ -1,5 +1,6 @@
 @startuml model
 ' left to right direction
+skinparam linetype ortho
 
 package pl.lodz.p.it.ssbd2022.ssbd03.entities {
 ' mok
