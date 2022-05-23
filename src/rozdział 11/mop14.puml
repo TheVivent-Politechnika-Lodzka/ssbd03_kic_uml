@@ -1,31 +1,35 @@
-@startuml MOK.14 - Oznacz wizytę jako zakończoną
+@startuml MOP.14 - Oznacz wizytę jako zakończoną
 
 
 actor Specjalista as guest
 boundary formularz_edycji_wizyty as gui
 control MOKEndpoint as endpoint
-entity ImplantReview as account
 control MOKService as service
+entity ImplantReview as implant
 control AppointmentFacade as accFacade
 
 skinparam backgroundcolor transparent
 
-guest -> gui ++ : Przekazanie danych do formularza
-gui -> endpoint ++ : Przekazanie danych z formularza
+guest -> gui ++ : Wciśnięcie przycisku zakończenia wizyty
+gui -> endpoint ++ : Wysłanie żądania zakończenia wizyty
 
 group Transaction.Never
 
-    endpoint -> account **: <<create>>
-    endpoint -> service ++ : .createReview(review)
+    endpoint -> service ++ : .finishAppointment(appointmentId)
 
     group Transaction.Required
         group Transaction.ReadCommitted <<RW>>
             box Transaction.Mandatory 
                 participant accFacade
                 alt sukces
-                service -> accFacade ++: .create(review)
+                service -> accFacade ++ : .find(appointmentId)
+                accFacade --> service : appointment
 
-                else użytkownik już zrecenzował cyberwszczep
+                service -> implant : .setStatus(FINISHED)
+
+                service -> accFacade : .edit(appointment)
+
+                else wizyta jest już zakończona/nie istnieje
                     accFacade --> service : wyjątek
                 end
 
