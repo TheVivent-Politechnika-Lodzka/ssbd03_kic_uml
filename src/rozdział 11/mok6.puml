@@ -5,6 +5,7 @@ boundary AccountPanelPage as gui
 control AccountEndpoint as controller
 control AccountService as service
 control AccountFacade as facade
+control AccessLevelFacade as facadeLevel
 entity Account as account
 
 skinparam backgroundcolor transparent
@@ -53,7 +54,8 @@ else użytkownik posiada poziomu dostępu
         group Transaction.ReadCommitted <<RW>>
             service -> facade ++ : removeAccessLevelFromAccount()
             facade -> account ** : edit(account)
-        return success
+            service -> facadeLevel : remove(accessLevel)
+            return success
         end
     end
     
