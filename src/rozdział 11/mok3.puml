@@ -44,11 +44,11 @@ alt użytkownik jest zablokowany
                     facade -> account  : result
                     service -> service : <<check>>
                 
-                    return fail
+                    return failure
                 end
             end
         end
-        return fail
+        return failure
     return HTTP 403 FORBIDDEN
     gui -> gui : <<render>>
 return Użytkownik już jest zablokowany

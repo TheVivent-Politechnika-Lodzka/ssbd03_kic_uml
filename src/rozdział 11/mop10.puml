@@ -1,0 +1,64 @@
+ @startuml MOP.11 - Edytuj swoją wizytę
+
+
+actor Klient as guest
+boundary formularz_edycji_wizyty as gui
+control MOKEndpoint as endpoint
+control MOPService as service
+control AppointmentFacade as appointmentFacade
+
+skinparam backgroundcolor transparent
+
+guest -> gui ++ : Przejście do formularza edycji wizyty
+gui -> endpoint ++ : żądanie załadowania danych
+
+group Transaction.Never
+
+    endpoint -> service  ++: findAppointment(appointmentId)
+
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> appointmentFacade ++: .find(appointmentId)
+            box Transaction.Mandatory
+                participant appointmentFacade
+            
+                alt sukces
+                    appointmentFacade --> service : Appointment
+                else wizyta o podanym id nie istnieje
+                    appointmentFacade --> service : wyjątek
+                    deactivate
+                end
+                
+            box
+            
+        end
+    end
+    return komunikat
+
+end
+return komunikat
+
+return komunikat
+
+guest -> gui ++: Edycja danych
+gui -> endpoint ++: przekazanie danych z formularza
+group Transaction.Never
+    endpoint -> service ++: .editAppointment(appointment)
+    
+    group Transaction.ReadCommitted <<RW>>
+        service -> appointmentFacade ++: .edit(appointment)
+        group Transaction.Mandatory
+            alt sukces
+                appointmentFacade --> service : appointment
+            else błąd
+                appointmentFacade --> service : wyjątek
+                deactivate
+            end
+        end
+    end
+end
+return komunikat
+return komunikat
+return komunikat
+
+@enduml

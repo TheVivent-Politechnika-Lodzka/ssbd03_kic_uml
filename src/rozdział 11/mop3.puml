@@ -1,0 +1,68 @@
+@startuml MOP.3 - Edytuj wszczep
+
+actor Administrator as admin
+boundary ImplantPage as gui
+control MOPEndpoint as controller
+control MOPService as service
+entity Implant as implant
+control ImplantFacade as facade
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+admin -> gui ++ : Wyświetl listę wszczepów
+gui -> controller ++ :  findAllImplants()
+group Transaction.Never
+    controller -> service ++ : findAllImplants()
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findAllImplants()
+            return List<implant>
+        end
+    end
+end
+return List<implant>
+return List<implant>
+gui --> gui : <<render>>
+return Formularz listy wszczepów
+
+admin -> gui ++ : Wywołanie formularza edytowania wszczepu
+gui -> controller ++ : editImplant(id)
+
+alt Wszczep o podanej nazwie nieistnieje
+    group Transaction.Never
+        controller -> service ++: editImplant(id)
+        group Transaction.Required
+            group Transaction.ReadCommitted <<RO>>
+                service -> facade ++ : findByName(name)
+                return failure
+            end
+        end  
+    end
+    service --> controller : failure
+    controller --> gui : Komunikat o błędzie
+    gui -> gui : <<render>>
+    gui --> admin : Wszczep został już zarchiwizowany
+
+else  sukces
+    group Transaction.Never
+        controller -> service : editImplant(id)
+        group Transaction.Required
+            group Transaction.ReadCommitted <<RW>>
+                service -> facade ++ : findByName(name)
+                facade -> service : implant
+                service -> facade : edit(implant)
+                return success
+            end
+        end
+    end
+    return success
+    return HTTP 200 OK
+gui -> gui : <<render>>
+return Wszczep został zarchiwizowany
+end
+
+
+@enduml

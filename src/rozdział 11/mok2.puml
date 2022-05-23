@@ -30,15 +30,15 @@ else sukces
                 box Transaction.Mandatory 
                     participant accFacade
                     alt sukces
-                    service -> accFacade ++: .create(account)
-                    note right
-                        operacja kaskadowa
-                        PERSIST
-                        Account i DataClient
-                    end note
+                        service -> accFacade ++: .create(account)
+                        note right
+                            operacja kaskadowa
+                            PERSIST
+                            Account i DataClient
+                        end note
 
                     else konto o podanym loginie istnieje
-                        accFacade --> service : wyjątek
+                        accFacade --> service : failure
                     end
 
                     deactivate accFacade
