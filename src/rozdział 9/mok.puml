@@ -1,0 +1,213 @@
+@startuml MOK_ejb_cdi_diagram
+left to right direction
+skinparam linetype ortho
+
+package pl.lodz.p.it.ssbd2022.common {
+    
+    abstract class AbstractFacade< T  > {
+        -Class<T> entityClass
+        +AbstractFacade(Class<T> entityClass)
+        #{abstract} EntityManager getEntityManager()
+        #{abstract} void HashAlgorithm getHashAlgorithm()
+        #void create(T entity)
+        #void edit(T entity, String eTag)
+        #void unsafeEdit(T entity)
+        #void remove(T entity, String eTag)
+        #void unsafeRemove(T entity)
+        #T find(Object id)
+        #List findAll()
+        #PaginationData findInRange(int pageNumber, int perPage)
+        #int count()
+        -void verifyTag(AbstractEntity entity, String eTag)
+    }
+
+    abstract class AbstractService {
+        #SessionContext sessionContext
+        #Logger logger
+        -String transactionId
+        -boolean lastTransactionCommited
+        +boolean isLastTransactionCommited()
+        +void afterBegin()
+        +void beforeCompletion()
+        +void afterCompletion()
+    }
+
+    interface ServiceLocalInterface <<Local>> {
+        +boolean isLastTransactionCommited();
+    }
+}
+
+
+package pl.lodz.p.it.ssbd2022.mok {
+    ' ENDPOINTY
+    package cdi.endpoints {
+        interface MOKEndpointInterface {
+            +Response register(@Valid RegisterClientDto registerClientDto)
+            +Response registerConfirm(@Valid RegisterClientConfirmDto registerConfirmDto)
+            +Response createAccount(@Valid CreateAccountDto createAccountDto)
+            +Response deactivateAccount(@PathParam("login") String login, @Valid ETagDto eTagDto)
+            +Response activateAccount(@PathParam("login") String login, @Valid ETagDto eTagDto)
+            +Response addAccessLevel(@PathParam("login") String login, @Valid AccessLevelDto accessLevelDto)
+            +Response removeAccessLevel(@PathParam("login") String login, @PathParam("accessLevel") String accessLevel, @QueryParam("eTag") String eTag)
+            +Response changeOwnPassword(@Valid ChangeOwnPasswordDto changeOwnPasswordDto)
+            +Response changePassword(@PathParam("login") String login, @Valid ChangePasswordDto changePasswordDto)
+            +Response editOwnAccount(@Valid AccountWithAccessLevelsDto accountWithAccessLevelsDto)
+            +Response editAccount(@PathParam("login") String login, @Valid AccountWithAccessLevelsDto accountWithAccessLevelsDto)
+            +Response login(@Valid LoginCredentialsDto loginCredentialsDto)
+            +Response getAllAccounts(@QueryParam("page") int page, @QueryParam("limit") int limit, @QueryParam("phrase") @DefaultValue("") String phrase)
+            +Response resetPassword(@PathParam("login") String login)
+            +Response resetPasswordToken(@Valid ResetPasswordTokenDto resetPasswordDto)
+            +Response getOwnAccount()
+            +Response getAccount(@PathParam("login") String login)
+        }
+
+        class MOKEndpoint<<RequestScoped>> {
+            #MOKServiceInterface mokServiceInterface
+            #AuthContext authContext
+            #AccountMapper accountMapper
+            #AccessLevelMapper accessLevelMapper
+            +Response register(RegisterClientDto registerClientDto)
+            +Response registerConfirm(RegisterClientConfirmDto registerConfirmDto)
+            +Response createAccount(CreateAccountDto createAccountDto)
+            +Response activateAccount(String login, ETagDto eTagDto)
+            +Response deactivateAccount(String login, ETagDto eTagDto)
+            +Response addAccessLevel(String login, AccessLevelDto accessLevelDto)
+            +Response removeAccessLevel(String login, String accessLevelName, String eTag)
+            +Response changeOwnPassword(ChangeOwnPasswordDto changeOwnPasswordDto)
+            +Response changePassword(String login, ChangePasswordDto changePasswordDto)
+            +Response editOwnAccount(AccountWithAccessLevelsDto accountWithAccessLevelsDto)
+            +Response editAccount(String login, AccountWithAccessLevelsDto accountWithAccessLevelsDto)
+            +Response login(LoginCredentialsDto loginCredentialsDto)
+            +Response getAllAccounts(int page, int limit, String phrase)
+            +Response resetPassword(String login)
+            +Response resetPasswordToken(ResetPasswordTokenDto resetPasswordDto)
+            +Response getOwnAccount()
+            +Response getAccount(String login)
+
+        }           
+    }
+
+    ' SERWISY
+    package ejb.services {
+
+        interface MOKServiceInterface <<Local>> {
+            +String authenticate(String login, String password)
+            +Account findAccountByLogin(String login)
+            +Account deactivateAccount(String login, String etag)
+            +Account activateAccount(String login, String etag)
+            +Account editAccount(String login, Account account, String etag)
+            +PaginationData findAllAccounts(int page, int size, String phrase)
+            +Account changeAccountPassword(String login, String newPassword, String etag)
+            +Account changeAccountPassword(String login, String oldPassword, String newPassword, String etag)
+            +Account registerAccount(Account account)
+            +Account confirmRegistration(String token)
+            +Account createAccount(Account account)
+            +Account addAccessLevelToAccount(String login, AccessLevel accessLevel)
+            +Account removeAccessLevelFromAccount(String login, String accessLevelName, String accessLevelEtag)
+            +Account resetPassword(String login)
+            +Account confirmResetPassword(String login, String password, String token)
+        }
+
+        class MOKService<extends AbstractService> <<Stateful>> {
+            -IdentityStoreHandler identityStoreHandler
+            -JWTGenerator jwtGenerator
+            -HashAlgorithm hashAlgorithm
+            -EmailService emailService
+            -AccountFacade accountFacade
+            -AccessLevelFacade accessLevelFacade
+            -ActiveAccountFacade activeAccountFacade
+            -ResetPasswordFacade resetPasswordFacade
+            +String authenticate(String login, String password)
+            +Account findAccountByLogin(String login)
+            +Account deactivateAccount(String login, String etag)
+            +Account activateAccount(String login, String etag)
+            +Account editAccount(String login, Account account, String etag)
+            +PaginationData findAllAccounts(int page, int size, String phrase)
+            +Account changeAccountPassword(String login, String newPassword, String etag)
+            +Account changeAccountPassword(String login, String oldPassword, String newPassword, String etag)
+            +Account registerAccount(Account account)
+            +Account confirmRegistration(String token)
+            +Account createAccount(Account account)
+            +Account addAccessLevelToAccount(String login, AccessLevel accessLevel)
+            +Account removeAccessLevelFromAccount(String login, String accessLevelName, String accessLevelEtag)
+            +Account resetPassword(String login)
+            +Account confirmResetPassword(String login, String password, String token)
+            -AccessLevel findAccessLevelByName(Collection<AccessLevel> list, Class<? extends AccessLevel> clazz)
+        }
+
+    }
+
+    ' FASADY
+    package ejb.facades {
+
+        class AccessLevelFacade<extends AbstractFacade<AccessLevel>> <<Stateless>> {
+            -EntityManager entityManager
+            -HashAlgorithm hashAlgorithm
+            +AccessLevelFacade()
+            +void remove(AccessLevel entity, String eTag)
+            +void create(AccessLevel entity)
+        }
+
+        class AccountFacade<extends AbstractFacade<Account>> <<Stateless>> {
+            -EntityManager entityManager
+            -HashAlgorithm hashAlgorithm
+            +AccountFacade()
+            +void unsafeRemove(Account entity)
+            +void edit(Account entity, String eTag)
+            +void unsafeEdit(Account entity)
+            +create(Account entity)
+            +Account findByLogin(String login)
+            +PaginationData findInRangeWithPhrase(int pageNumber, int perPage, String phrase)
+        }
+        
+        class ActiveAccountFacade<extends AbstractFacade<ConfirmationAccountToken>> <<Stateless>> {
+            -EntityManager entityManager
+            -HashAlgorithm hashAlgorithm
+            +ActiveAccountFacade()
+            +create(ConfirmationAccountToken entity)
+            +void unsafeRemove(ConfirmationAccountToken entity)
+            +ConfirmationAccountToken findToken(String login)
+            +List<ConfirmationAccountToken> findExpiredTokens()
+        }
+
+        class ResetPasswordFacade<extends AbstractFacade<ResetPasswordToken>> <<Stateless>> {
+            -EntityManager entityManager
+            -HashAlgorithm hashAlgorithm
+            +ResetPasswordFacade()
+            +void create(ResetPasswordToken entity)
+            +void unsafeRemove(ResetPasswordToken resetPasswordToken)
+            +ResetPasswordToken findResetPasswordToken(String login)
+            +List<ResetPasswordToken> findResetPasswordToken(Instant date)
+        }
+
+    }
+
+    
+    
+}
+
+' extend fasad
+AbstractFacade <|- AccessLevelFacade
+AbstractFacade <|- AccountFacade
+AbstractFacade <|- ActiveAccountFacade
+AbstractFacade <|- ResetPasswordFacade
+
+' extend/implement serwis
+AbstractService <|- MOKService
+ServiceLocalInterface <|- MOKServiceInterface
+MOKServiceInterface <|- MOKService
+
+' implement endpoint
+MOKEndpointInterface <|- MOKEndpoint
+
+' wykorzystanie serwisu przez endpoint
+MOKEndpoint -> MOKServiceInterface
+
+' wykorzystanie fasady przez serwis
+MOKService -> AccessLevelFacade
+MOKService -> AccountFacade
+MOKService -> ActiveAccountFacade
+MOKService -> ResetPasswordFacade
+
+
+@enduml

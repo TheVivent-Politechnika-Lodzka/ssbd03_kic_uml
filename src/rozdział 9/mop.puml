@@ -1,0 +1,122 @@
+@startuml mop_ejb_cdi_diagram
+left to right direction
+skinparam linetype ortho
+
+package pl.lodz.p.it.ssbd2022.common {
+    abstract class AbstractFacade< T  > {
+        -Class<T> entityClass
+        +AbstractFacade(Class<T> entityClass)
+        #{abstract} EntityManager getEntityManager()
+        #{abstract} void HashAlgorithm getHashAlgorithm()
+        #void create(T entity)
+        #void edit(T entity, String eTag)
+        #void unsafeEdit(T entity)
+        #void remove(T entity, String eTag)
+        #void unsafeRemove(T entity)
+        #T find(Object id)
+        #List findAll()
+        #PaginationData findInRange(int pageNumber, int perPage)
+        #int count()
+        -void verifyTag(AbstractEntity entity, String eTag)
+    }
+
+    abstract class AbstractService {
+        #SessionContext sessionContext
+        #Logger logger
+        -String transactionId
+        -boolean lastTransactionCommited
+        +boolean isLastTransactionCommited()
+        +void afterBegin()
+        +void beforeCompletion()
+        +void afterCompletion()
+    }
+
+    interface ServiceLocalInterface <<Local>> {
+        +boolean isLastTransactionCommited();
+    }
+}
+
+
+package pl.lodz.p.it.ssbd2022.mop {
+
+    ' ENDPOINTY
+    package cdi.endpoints {
+        interface MOPEndpointInterface {
+            +Response create(String json)
+            +Response delete(@PathParam("name") String name)
+            +Response edit(String json)
+            +Response details(@PathParam("id") String id)
+            +Response list(@QueryParam("page") int page, @QueryParam("size") int size, @QueryParam("phrase") @DefaultValue("") String phrase)
+            +Response listSpecialists(@QueryParam("page") int page, @QueryParam("size") int size, @QueryParam("phrase") @DefaultValue("") String phrase)
+            +Response listVisits(@QueryParam("page") int page, @QueryParam("size") int size, @QueryParam("phrase") @DefaultValue("") String phrase)
+            +Response listMyVisits(@QueryParam("page") int page, @QueryParam("size") int size, @QueryParam("phrase") @DefaultValue("") String phrase)
+            +Response reserve(String json)
+            +Response editVisit(String json)
+            +Response editVisit(@PathParam("id") String id, String json)
+            +Response cancelVisit(String json)
+            +Response cancelVisit(@PathParam("id") String id, String json)
+            +Response finishVisit(String json)
+            +Response addImplantsReview(String json)
+            +Response deleteImplantsReview(String json)
+        }
+
+        class MOPEndpoint {
+                
+        }           
+    }
+
+    ' FASADY
+    package ejb.facades {
+
+    }
+
+    ' SERWISY
+    package ejb.services {
+
+        interface MOPServiceInterface {
+            +Implant createImplant(Implant implant)
+            +void deleteImplant(Implant implant)
+            +Implant updateImplant(Implant implant)
+            +List<Implant> findImplants(int page, int pageSize, String phrase)
+            +List<Account> findSpecialists(int page, int pageSize, String phrase)
+            +List<Appointment> findVisits(int page, int pageSize, String phrase, String login)
+            +List<Appointment> findVisits(int page, int pageSize, String phrase)
+            +Appointment createAppointment(Appointment appointment)
+            +Appointment editAppointment(Appointment appointment)
+            +Appointment cancelAppointment(Appointment appointment)
+            +Appointment finishAppointment(Appointment appointment)
+            +ImplantReview createReview(ImplantReview review)
+            +void deleteReview(ImplantReview review)
+        }
+
+        class MOPService {}
+
+    }
+    
+}
+
+' extend fasad
+' AbstractFacade <|- AccessLevelFacade
+' AbstractFacade <|- AccountFacade
+' AbstractFacade <|- ActiveAccountFacade
+' AbstractFacade <|- ResetPasswordFacade
+
+' extend/implement serwis
+AbstractService <|- MOPService
+ServiceLocalInterface <|- MOPServiceInterface
+MOPServiceInterface <|- MOPService
+
+' implement endpoint
+MOPEndpointInterface <|- MOPEndpoint
+
+' wykorzystanie serwisu przez endpoint
+MOPEndpoint -> MOPServiceInterface
+
+' wykorzystanie fasady przez serwis
+' mopService -> AccessLevelFacade
+' mopService -> AccountFacade
+' mopService -> ActiveAccountFacade
+' mopService -> ResetPasswordFacade
+
+
+@enduml
