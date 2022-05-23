@@ -1,7 +1,6 @@
-@startuml MOP.13 - Odwołaj dowolną wizytę
+@startuml MOP.12 - Odwołaj dowolną wizytę
 
-
-actor Administrator as guest
+actor "Klient/Specjalista" as guest
 boundary formularz_edycji_wizyty as gui
 control MOKEndpoint as endpoint
 control MOKService as service

@@ -5,7 +5,7 @@ actor Specjalista as guest
 boundary formularz_edycji_wizyty as gui
 control MOKEndpoint as endpoint
 control MOKService as service
-entity ImplantReview as implant
+entity Appointment as implant
 control AppointmentFacade as accFacade
 
 skinparam backgroundcolor transparent
