@@ -25,7 +25,7 @@ group Transaction.Never
                 service -> accFacade ++ : .find(appointmentId)
                 accFacade --> service : appointment
 
-                service -> implant : .setStatus(REJECTED)
+                service -> implant **: .setStatus(REJECTED)
 
                 service -> accFacade : .edit(appointment)
 

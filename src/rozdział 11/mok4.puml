@@ -19,9 +19,9 @@ group Transaction.Never
     group Transaction.Required
         group Transaction.ReadCommitted <<RW>>
             service -> facade ++ : findByLogin(login)
-            facade -> account : result
+            facade --> service : result
             service -> service : <<check>>
-            service -> account : setActive(true)
+            service -> account ** : setActive(true)
             service -> facade : edit(account)
             return success
         end
@@ -33,7 +33,7 @@ return HTTP 200 OK
 gui -> gui : <<render>>
 return Informacja o odblokowaniu konta
 
-alt użytkownik jest odblokowany
+alt użytkownik jest już odblokowany
     admin -> gui ++ : enableAccount(id)
     gui -> controller ++ : enableAccount(id)
     group Transaction.Never
@@ -41,14 +41,14 @@ alt użytkownik jest odblokowany
         group Transaction.Required
             group Transaction.ReadCommitted <<RW>>
                 service -> facade ++: findByLogin(login)
-                facade -> account  : result
+                facade --> service  : result
                 service -> service : <<check>>
 
-                return fail
+                return failure
             end
         end
     end
-    return fail
+    return failure
 return HTTP 403 FORBIDDEN
 gui -> gui : <<render>>
 return Użytkownik już jest odblokowany

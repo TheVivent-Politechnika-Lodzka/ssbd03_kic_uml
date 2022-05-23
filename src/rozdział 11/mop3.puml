@@ -4,7 +4,6 @@ actor Administrator as admin
 boundary ImplantPage as gui
 control MOPEndpoint as controller
 control MOPService as service
-entity Implant as implant
 control ImplantFacade as facade
 
 skinparam backgroundcolor transparent
