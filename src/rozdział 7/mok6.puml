@@ -40,12 +40,11 @@ else użytkownik posiada poziomu dostępu
         facade -> account ** : edit(account)
     return success
     end
-end
 
 return success
 return HTTP 200 OK
 gui -> gui : <<render>>
 return Informacja o usunięciu poziomu dostępu
-
+end
 
 @enduml
