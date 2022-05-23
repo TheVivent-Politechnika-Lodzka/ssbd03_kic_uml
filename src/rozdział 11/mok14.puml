@@ -6,7 +6,6 @@ control AccountEndpoint as controller
 control AccountService as service
 control AccountFacade as facade
 control ResetPasswordFacade as r_facade
-entity Account as account
 
 user -> gui ++ : Wybór widoku logowania
 gui -> controller ++ : resetPassword(login)
@@ -52,4 +51,5 @@ return Widok logowania
 skinparam backgroundcolor transparent
 box Transaction.Mandatory
 participant facade
+participant r_facade
 end box

@@ -13,23 +13,23 @@ end box
 
 
 admin -> gui ++ : Wybranie edycji konta
-gui -> controller ++ : editOwnAccount(accountWithAccesLevelDto)
+gui -> controller ++ : editOwnAccount()
 group Transaction.Never
-    controller -> service ++ : editAccount(login,update,etag)
+    controller -> service ++ : editAccount()
     group Transaction.Required
         group Transaction.ReadCommitted<<RW>>
-            service -> facade ++ : edit(account,etag)
+            service -> facade ++ : edit(account)
         end
     end
 end
 alt Poprawne dane edycji
-return success
-return HTTP 200 + account
-return HTTP 200 + account
-return  Poprawna edycja konta
+    return success
+    return success
+    return HTTP 200 
+    return  Poprawna edycja konta
 else Niepoprawne dane
-service -> service ++: invalid data
-service -> controller ++ : exception
-controller -> gui ++ : exception
-gui -> admin ++ : Niepoprawna edycja konta
+    service -> service : invalid data
+    service --> controller : exception
+    controller --> gui : exception
+    gui --> admin : Niepoprawna edycja konta
 end
