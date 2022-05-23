@@ -1,0 +1,33 @@
+@startuml MOK12 Zaloguj
+
+actor Gość as user
+boundary Formularz_logowania as gui
+control MOKEndpoint as controller
+control MOKService as service
+control IdentityStore as auth
+
+
+user -> gui ++ : Przekazanie danych do formularza
+gui -> controller ++ : login(LoginCredentialsDto)
+group Transaction.Never
+controller -> service ++ : authenticate(login,password)
+    group Transaction.Required
+        group  Transaction.ReadCommitted<<RO>>
+            service -> auth ++ : validate(credential)
+            return : Zwrócenie statusu
+        end
+    end
+end
+alt konto o podanych danych istnieje
+    service --> controller : Zwrócenie tokenu
+    controller --> gui : Zwrócenie tokenu
+    gui --> user : Przekierowanie na stronę uwierzytelnioną
+
+else konto o podanych danych nie istnieje
+    return HTTP 401
+    return HTTP 401
+    return Komunikat o błędnie wprowadzonych danych
+end
+
+
+@enduml

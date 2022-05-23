@@ -1,0 +1,34 @@
+@startuml MOK.13 przeglądaj listę wszystkich kont
+
+actor Administrator as client
+boundary AdminPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+entity Account as account
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+client -> gui ++ : Wyświetl listę użytkowników
+gui -> controller ++ :  getAllAccounts(page,limit,phrase)
+group Transaction.Never
+    alt page = 0 / size = 0 
+    controller -> service ++ : findAllAccounts(page,limit,phrase)
+    return InvalidParameterException()
+    else
+    controller -> service ++ : findAllAccounts(page,limit,phrase)
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findAllAccounts()
+            return List<account>
+        end
+    end
+    end
+end
+return List<account>
+return List<account>
+gui --> gui : <<render>>
+return Formularz listy użytkowników

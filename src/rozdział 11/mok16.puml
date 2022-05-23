@@ -14,8 +14,7 @@ gui -> controller ++ :  getAccount(login)
 group Transaction.Never
     controller -> service ++ : findAccountByLogin(login)
     group Transaction.Required
-        group Transaction.ReadCommitted
-            <<RO>>
+        group Transaction.ReadCommitted<<RO>>
             service -> facade ++ : findAccountByLogin(login)
             return account
         end

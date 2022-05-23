@@ -1,0 +1,35 @@
+@startuml MOK 9 edytuj własne konto
+
+actor Użytkownik as admin
+boundary AccountPage as gui
+control MokEndpoint as controller
+control MokService as service
+control AccountFacade as facade
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory
+participant facade
+end box
+
+
+admin -> gui ++ : Wybranie konta do edycji
+gui -> controller ++ : editOwnAccount(accountWithAccesLevelDto)
+group Transaction.Never
+    controller -> service ++ : editAccount(login,update,etag)
+    group Transaction.Required
+        group Transaction.ReadCommitted<<RW>>
+            service -> facade ++ : edit(account,etag)
+        end
+    end
+end
+alt Poprawne dane edycji
+return success
+return HTTP 200 + account
+return HTTP 200 + account
+return  Poprawna edycja konta
+else Niepoprawne dane
+service -> service ++: invalid data
+service -> controller ++ : exception
+controller -> gui ++ : exception
+gui -> admin ++ : Niepoprawna edycja konta
+end
