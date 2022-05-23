@@ -28,43 +28,40 @@ return List<implant>
 gui --> gui : <<render>>
 return Formularz listy wszczepów
 
-admin -> gui ++ : Wywołanie formularza edycji wszczepu
+admin -> gui ++ : Wywołanie formularza edytowania wszczepu
 gui -> controller ++ : editImplant(id)
-group Transaction.Never
-    controller -> service ++: editImplant(id)
-    group Transaction.Required
-        group Transaction.ReadCommitted <<RW>>
-            service -> facade ++ : findByName(name)
-            facade -> implant : result
-            service -> service : <<check>>
-            service -> facade : edit(implant)
-            return success
-        end
-    end  
-end
-return success
-return HTTP 200 OK
-gui -> gui : <<render>>
-return Informacja o usunieciu wszczepu
 
-alt Wszczep o podanej nazwie nie istnieje
-admin -> gui ++ : Wywołanie formularza usuniecia implantu
-gui -> controller ++ : editImplant(id)
-group Transaction.Never
-    controller -> service ++: editImplant(id)
-    group Transaction.Required
-        group Transaction.ReadCommitted <<RO>>
-            service -> facade ++: findByName(name)
-            facade -> implant  : result
-            service -> service : <<check>>
-            return failure
+alt Wszczep o podanej nazwie nieistnieje
+    group Transaction.Never
+        controller -> service ++: editImplant(id)
+        group Transaction.Required
+            group Transaction.ReadCommitted <<RO>>
+                service -> facade ++ : findByName(name)
+                return failure
+            end
+        end  
+    end
+    service --> controller : failure
+    controller --> gui : Komunikat o błędzie
+    gui -> gui : <<render>>
+    gui --> admin : Wszczep został już zarchiwizowany
+
+else  sukces
+    group Transaction.Never
+        controller -> service : editImplant(id)
+        group Transaction.Required
+            group Transaction.ReadCommitted <<RW>>
+                service -> facade ++ : findByName(name)
+                facade -> service : implant
+                service -> facade : edit(implant)
+                return success
+            end
         end
     end
-end
-return failure
-return HTTP 403 FORBIDDEN
+    return success
+    return HTTP 200 OK
 gui -> gui : <<render>>
-return Wszczep został już zarchiwizowany
+return Wszczep został zarchiwizowany
 end
 
 

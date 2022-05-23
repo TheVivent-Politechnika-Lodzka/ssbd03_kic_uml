@@ -56,7 +56,7 @@ else użytkownik nie posiada poziomu dostępu
         group Transaction.ReadCommitted <<RW>>
             service -> facade ++ : addAccessLevelToAccount()
             facade -> account ** : edit(account)
-            service -> facadeLevel : create(accessLevel)
+            service -> facadeLevel **: create(accessLevel)
             return success
         end
     end

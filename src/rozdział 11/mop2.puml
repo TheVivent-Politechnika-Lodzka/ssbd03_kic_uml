@@ -31,7 +31,7 @@ return Formularz listy wszczepów
 admin -> gui ++ : Wywołanie formularza archiwizowania wszczepu
 gui -> controller ++ : archiveImplant(id)
 
-alt Wszczep o podanej nazwie istnieje
+alt Wszczep o podanej nazwie nieistnieje
     group Transaction.Never
         controller -> service ++: archiveImplant(id)
         group Transaction.Required
@@ -50,12 +50,11 @@ else  sukces
     group Transaction.Never
         controller -> service : archiveImplant(id)
         group Transaction.Required
-            group Transaction.ReadCommitted <<RO>>
+            group Transaction.ReadCommitted <<RW>>
                 service -> facade ++ : findByName(name)
                 facade -> service : implant
+                service -> implant **: setArchived(true)
                 service -> facade : edit(implant)
-                facade -> implant **: setArchived(true)
-            
                 return success
             end
         end
