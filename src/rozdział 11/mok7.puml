@@ -1,0 +1,50 @@
+@startuml MOK.7 - Zmiana własnego hasła
+
+actor Użytkownik as client
+boundary AccountPanelPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+entity Account as account
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+
+client -> gui ++ : Formularz edycji własnego hasła
+gui -> controller ++ : changeAccountPassword()
+group Transaction.Never
+    controller -> service ++ : changeAccountPassword() 
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findByLogin(login)
+            return account
+        end
+    end
+end
+
+alt poprawne dane
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RW>>
+        
+            service -> service : verify()
+            service -> facade ++ : changePassword()
+            facade -> account ** : edit(account)
+            return success
+        end
+    end
+    return success
+    return HTTP 200 OK
+    gui -> gui : <<render>>
+    return Informacja o zmianie hasła
+else niepoprawne dane
+    service -> service : verify()
+        service --> controller : failure
+        controller --> gui : Komunikat o błędzie
+        gui --> client : Informacja o braku zmiany hasła
+        
+    end
+
+@enduml
