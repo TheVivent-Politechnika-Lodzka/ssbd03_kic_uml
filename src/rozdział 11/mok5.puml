@@ -1,0 +1,66 @@
+@startuml MOK.5 - Dołącz poziom dostępu
+
+actor Administrator as admin
+boundary AccountPanelPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+entity Account as account
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+admin -> gui ++ : Wyświetl listę użytkowników
+gui -> controller ++ :  findAllAccounts()
+group Transaction.Never
+    controller -> service ++ : findAllAccounts()
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findAllAccounts()
+            return account
+        end
+    end
+end
+return List<account>
+return List<account>
+gui --> gui : <<render>>
+return Formularz listy użytkowników
+
+admin -> gui ++ : Wybranie użytkownika i dodanie poziomu dostępu
+gui -> controller ++ : addAccessLevelToAccount()
+
+group Transaction.Never
+    controller -> service ++ : addAccessLevelToAccount() 
+
+    group Transaction.ReadCommitted <<RO>>
+        service -> facade ++ : findByLogin(login)
+        return account
+    end
+end
+
+alt użytkownik posiada poziom dostępu
+    group Transaction.Required
+        service -> facade ++ : addAccessLevelToAccount()
+        return failure
+    end
+    service --> controller : failure
+    controller --> gui : Komunikat o błędzie
+    gui --> admin : Informacja o braku dodania poziomu dostępu
+    
+else użytkownik nie posiada poziomu dostępu
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RW>>
+            service -> facade ++ : addAccessLevelToAccount()
+            facade -> account ** : edit(account)
+            return success
+        end
+    end
+return success
+return HTTP 200 OK
+gui -> gui : <<render>>
+return Informacja o dodaniu poziomu dostępu
+end
+
+@enduml

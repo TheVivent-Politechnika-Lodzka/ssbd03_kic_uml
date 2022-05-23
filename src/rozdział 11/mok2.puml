@@ -1,0 +1,55 @@
+@startuml MOK.2 - Utwórz konto
+
+
+actor Administrator as guest
+boundary formularz_utworzenia_konta as gui
+control MOKEndpoint as endpoint
+entity Account as account
+entity DataClient as clientData
+control MOKService as service
+control AccountFacade as accFacade
+
+skinparam backgroundcolor transparent
+
+guest -> gui ++ : Przekazanie danych do formularza
+gui -> endpoint ++ : Przekazanie danych z formularza
+
+alt niepowodzenie walidacji danych
+    endpoint --> gui : błąd walidacji
+else sukces
+    group Transaction.Never
+
+        endpoint -> account **: <<create>>
+        endpoint -> clientData **: <<create>>
+        endpoint -> account : setAccessLevel(clientData)
+        endpoint -> clientData: setAccount(account)
+        endpoint -> service ++ : .createAccount(account)
+
+        group Transaction.Required
+            group Transaction.ReadCommitted <<RW>>
+                box Transaction.Mandatory 
+                    participant accFacade
+                    alt sukces
+                    service -> accFacade ++: .create(account)
+                    note right
+                        operacja kaskadowa
+                        PERSIST
+                        Account i DataClient
+                    end note
+
+                    else konto o podanym loginie istnieje
+                        accFacade --> service : wyjątek
+                    end
+
+                    deactivate accFacade
+                end box
+            end
+        end
+        return komunikat
+
+    end
+    
+    return komunikat
+end
+
+return komunikat

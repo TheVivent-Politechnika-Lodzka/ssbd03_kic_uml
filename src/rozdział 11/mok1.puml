@@ -1,5 +1,5 @@
 TODO: ogarnąć transakcje czy git 
-@startuml MOK.1 - Zarejstruj
+@startuml MOK.1 - Zarejestruj
 
 
 actor Gość as guest
@@ -10,6 +10,8 @@ entity DataClient as clientData
 control MOKService as service
 control AccountFacade as accFacade
 control EmailService as emailService
+
+skinparam backgroundcolor transparent
 
 guest -> gui ++ : Przekazanie danych do formularza
 gui -> endpoint ++ : Przekazanie danych z formularza
@@ -28,7 +30,9 @@ else sukces
         group Transaction.Required
             group Transaction.ReadCommitted <<RW>>
                 service -> accFacade ++: .create(account)
-                group Transaction.Mandatory
+                
+                box Transaction.Mandatory
+                    participant accFacade
                     note right
                         operacja kaskadowa
                         PERSIST
@@ -36,24 +40,23 @@ else sukces
                     end note
                     alt sukces
                         ' accFacade --> service : id
-                        service -> emailService ++: .sendEmail(account)
+                        service -> emailService ++: .sendEmail(login)
                         deactivate
                     else konto o podanym loginie istnieje
                         accFacade --> service : wyjątek
                     end
                     
-                end
+                box
 
                 deactivate accFacade
                 
             end
         end
-
         return komunikat
 
     end
-    
     return komunikat
+
 end
 
 return komunikat
@@ -61,20 +64,20 @@ return komunikat
 guest -> gui ++: kliknięcie linku aktywacyjnego
 gui -> endpoint ++: przekazanie kodu aktywacyjnego
 group Transaction.Never
-    endpoint -> service ++: .activateAccount(code)
+    endpoint -> service ++: .confirmRegistration(code)
     
     group Transaction.ReadCommitted <<RW>>
-        service -> accFacade ++: .searchAccount(code)
-
-        alt sukces
-            accFacade --> service : account
-            service -> account: setActive(true)
-            service -> accFacade : .updateAccount(account)
-        else minęło ponad 30 minut od wysłania kodu / konto nie istnieje
-            accFacade --> service : wyjątek
-            deactivate
+        service -> accFacade ++: .findByLogin(code)
+        group Transaction.Mandatory
+            alt sukces
+                accFacade --> service : account
+                service -> account: setConfirmed(true)
+                service -> accFacade : .edit(account)
+            else minęło ponad 30 minut od wysłania kodu / konto nie istnieje
+                accFacade --> service : wyjątek
+                deactivate
+            end
         end
-
     end
 end
 return komunikat

@@ -1,0 +1,58 @@
+@startuml MOK.4 - Odblokuj konto
+
+actor Administrator as admin
+boundary AccountPanelPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+entity Account as account
+control AccountFacade as facade
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+admin -> gui ++ : Wywołanie wyświetlenia formularza
+gui -> controller ++ : activateAccount(id)
+group Transaction.Never
+    controller -> service ++ : activateAccount(id) 
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RW>>
+            service -> facade ++ : findByLogin(login)
+            facade -> account : result
+            service -> service : <<check>>
+            service -> account : setActive(true)
+            service -> facade : edit(account)
+            return success
+        end
+    end
+end
+
+return success
+return HTTP 200 OK
+gui -> gui : <<render>>
+return Informacja o odblokowaniu konta
+
+alt użytkownik jest odblokowany
+    admin -> gui ++ : enableAccount(id)
+    gui -> controller ++ : enableAccount(id)
+    group Transaction.Never
+        controller -> service ++ : enableAccount(id)
+        group Transaction.Required
+            group Transaction.ReadCommitted <<RW>>
+                service -> facade ++: findByLogin(login)
+                facade -> account  : result
+                service -> service : <<check>>
+
+                return fail
+            end
+        end
+    end
+    return fail
+return HTTP 403 FORBIDDEN
+gui -> gui : <<render>>
+return Użytkownik już jest odblokowany
+end
+
+
+@enduml
