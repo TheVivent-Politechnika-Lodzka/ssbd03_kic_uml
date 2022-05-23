@@ -60,7 +60,8 @@ package pl.lodz.p.it.ssbd2022.mop {
             +Response deleteImplantsReview(String json)
         }
 
-        class MOPEndpoint {
+        class MOPEndpoint<<RequestScoped>> {
+            -MOPServiceInterface mopService
                 
         }           
     }
@@ -89,7 +90,7 @@ package pl.lodz.p.it.ssbd2022.mop {
             +void deleteReview(ImplantReview review)
         }
 
-        class MOPService {}
+        class MOPService <extends AbstractService> <<Stateful>><<SessionSynchronization>> {}
 
     }
     

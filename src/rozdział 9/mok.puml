@@ -108,7 +108,7 @@ package pl.lodz.p.it.ssbd2022.mok {
             +Account confirmResetPassword(String login, String password, String token)
         }
 
-        class MOKService<extends AbstractService> <<Stateful>> {
+        class MOKService<extends AbstractService> <<Stateful>><<SessionSynchronization>> {
             -IdentityStoreHandler identityStoreHandler
             -JWTGenerator jwtGenerator
             -HashAlgorithm hashAlgorithm
