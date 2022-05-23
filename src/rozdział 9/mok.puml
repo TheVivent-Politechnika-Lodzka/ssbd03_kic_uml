@@ -9,19 +9,19 @@ package pl.lodz.p.it.ssbd2022.common {
         +AbstractFacade(Class<T> entityClass)
         #{abstract} EntityManager getEntityManager()
         #{abstract} void HashAlgorithm getHashAlgorithm()
-        +void create(T entity)
-        +void edit(T entity, String eTag)
-        +void unsafeEdit(T entity)
-        +void remove(T entity, String eTag)
-        +void unsafeRemove(T entity)
-        +T find(Object id)
-        +List findAll()
-        +PaginationData findInRange(int pageNumber, int perPage)
-        +int count()
+        #void create(T entity)
+        #void edit(T entity, String eTag)
+        #void unsafeEdit(T entity)
+        #void remove(T entity, String eTag)
+        #void unsafeRemove(T entity)
+        #T find(Object id)
+        #List findAll()
+        #PaginationData findInRange(int pageNumber, int perPage)
+        #int count()
         -void verifyTag(AbstractEntity entity, String eTag)
     }
 
-    abstract class AbstractManager {
+    abstract class AbstractService {
         #SessionContext sessionContext
         #Logger logger
         -String transactionId
@@ -32,7 +32,7 @@ package pl.lodz.p.it.ssbd2022.common {
         +void afterCompletion()
     }
 
-    interface ManagerLocalInterface <<Local>> {
+    interface ServiceLocalInterface <<Local>> {
         +boolean isLastTransactionCommited();
     }
 }
@@ -108,7 +108,7 @@ package pl.lodz.p.it.ssbd2022.mok {
             +Account confirmResetPassword(String login, String password, String token)
         }
 
-        class MOKService<extends AbstractManager> <<Stateful>> {
+        class MOKService<extends AbstractService> <<Stateful>> {
             -IdentityStoreHandler identityStoreHandler
             -JWTGenerator jwtGenerator
             -HashAlgorithm hashAlgorithm
@@ -144,6 +144,7 @@ package pl.lodz.p.it.ssbd2022.mok {
             -EntityManager entityManager
             -HashAlgorithm hashAlgorithm
             +AccessLevelFacade()
+            +void remove(AccessLevel entity, String eTag)
             +void create(AccessLevel entity)
         }
 
@@ -151,6 +152,9 @@ package pl.lodz.p.it.ssbd2022.mok {
             -EntityManager entityManager
             -HashAlgorithm hashAlgorithm
             +AccountFacade()
+            +void unsafeRemove(Account entity)
+            +void edit(Account entity, String eTag)
+            +void unsafeEdit(Account entity)
             +create(Account entity)
             +Account findByLogin(String login)
             +PaginationData findInRangeWithPhrase(int pageNumber, int perPage, String phrase)
@@ -161,16 +165,19 @@ package pl.lodz.p.it.ssbd2022.mok {
             -HashAlgorithm hashAlgorithm
             +ActiveAccountFacade()
             +create(ConfirmationAccountToken entity)
+            +void unsafeRemove(ConfirmationAccountToken entity)
             +ConfirmationAccountToken findToken(String login)
+            +List<ConfirmationAccountToken> findExpiredTokens()
         }
 
         class ResetPasswordFacade<extends AbstractFacade<ResetPasswordToken>> <<Stateless>> {
             -EntityManager entityManager
             -HashAlgorithm hashAlgorithm
             +ResetPasswordFacade()
+            +void create(ResetPasswordToken entity)
+            +void unsafeRemove(ResetPasswordToken resetPasswordToken)
             +ResetPasswordToken findResetPasswordToken(String login)
             +List<ResetPasswordToken> findResetPasswordToken(Instant date)
-            +void unsafeRemove(ResetPasswordToken resetPasswordToken)
         }
 
     }
@@ -186,8 +193,8 @@ AbstractFacade <|- ActiveAccountFacade
 AbstractFacade <|- ResetPasswordFacade
 
 ' extend/implement serwis
-AbstractManager <|- MOKService
-ManagerLocalInterface <|- MOKServiceInterface
+AbstractService <|- MOKService
+ServiceLocalInterface <|- MOKServiceInterface
 MOKServiceInterface <|- MOKService
 
 ' implement endpoint
