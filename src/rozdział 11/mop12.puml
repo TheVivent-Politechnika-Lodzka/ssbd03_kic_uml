@@ -1,0 +1,48 @@
+@startuml MOP.12 - Odwołaj dowolną wizytę
+
+actor "Klient/Specjalista" as guest
+boundary formularz_edycji_wizyty as gui
+control MOKEndpoint as endpoint
+control MOKService as service
+entity Appointment as implant
+control AppointmentFacade as accFacade
+
+skinparam backgroundcolor transparent
+
+guest -> gui ++ : Wciśnięcie przycisku zakończenia wizyty
+gui -> endpoint ++ : Wysłanie żądania zakończenia wizyty
+
+group Transaction.Never
+
+    endpoint -> service ++ : .finishAppointment(appointmentId)
+
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RW>>
+            box Transaction.Mandatory 
+                participant accFacade
+                alt sukces
+                service -> accFacade ++ : .find(appointmentId)
+                accFacade --> service : appointment
+
+                service -> implant : .setStatus(REJECTED)
+
+                service -> accFacade : .edit(appointment)
+
+                else wizyta jest już zakończona/nie istnieje
+                    accFacade --> service : wyjątek
+                end
+
+                deactivate accFacade
+            end box
+        end
+    end
+    return komunikat
+
+end
+
+return komunikat
+
+
+return komunikat
+
+@enduml

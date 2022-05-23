@@ -1,0 +1,32 @@
+@startuml MOK.16 - Przeglądaj szczegóły konta innego użytkownika
+
+
+
+actor Administrator as admin
+boundary AccountPanelPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+entity Account as account
+
+admin -> gui ++ : Kliknięcie przycisku przy odpowiednim użytkowniku z lity
+gui -> controller ++ :  getAccount(login)
+group Transaction.Never
+    controller -> service ++ : findAccountByLogin(login)
+    group Transaction.Required
+        group Transaction.ReadCommitted
+            <<RO>>
+            service -> facade ++ : findAccountByLogin(login)
+            return account
+        end
+    end
+end
+return account
+return account
+gui --> gui : <<render>>
+return Widok szczegółów konta wybranego użytkownika
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory
+participant facade
+end box

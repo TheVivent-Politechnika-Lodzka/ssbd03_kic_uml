@@ -1,0 +1,29 @@
+@startuml MOK.15 Przeglądaj szczegóły własnego konta
+
+actor Użytkownik as user
+boundary AccountDetailsPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+entity Account as account
+
+user -> gui ++ : Wybór widoku konta
+gui -> controller ++ :  getOwnAccount()
+group Transaction.Never
+    controller -> service ++ : findAccountByLogin(login)
+    group Transaction.Required
+        group Transaction.ReadCommitted<<RO>>
+            service -> facade ++ : findByLogin(login)
+            return account
+        end
+    end
+end
+return account
+return account
+gui --> gui : <<render>>
+return Widok szczegółów własnego konta
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory
+participant facade
+end box

@@ -1,0 +1,54 @@
+@startuml MOK.14 Zresetuj hasło
+
+actor Użytkownik as user
+boundary LoginPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+control ResetPasswordFacade as r_facade
+entity Account as account
+
+user -> gui ++ : Wybór widoku logowania
+gui -> controller ++ : resetPassword(login)
+group Transaction.Never
+    controller -> service ++ : resetPassword(login)
+    group Transaction.Required
+        group Transaction.ReadCommitted<<RW>>
+            service -> r_facade ++ : create(resetPasswordToken)
+            return resetPasswordToken
+            service -> facade ++ : setAccount(resetPasswordToken)
+            return resetPasswordToken
+        end
+    end
+end
+return resetPasswordToken
+return komunikat
+return wysłanie maila z tokenem resetujacym
+
+user -> gui ++ : Wprowadzenie tokenu
+gui -> controller ++ :  resetPasswordToken(resetPasswordDto)
+group Transaction.Never
+    controller -> service ++ : confirmResetPassword(login,password,token)
+    group Transaction.Required
+        group Transaction.ReadCommitted<<RW>>
+        alt Token został wygenerowany
+            service -> r_facade ++ : findResetPasswordToken(login)
+            return account
+            service -> facade ++ : unsafeEdit(account)
+            return account
+        else Token nieprawidłowy
+         service -> r_facade ++ : findResetPasswordToken(login)
+         return TokenInvalidException()
+        end
+    end
+end
+return account
+return 200 Ok
+gui --> gui : <<render>>
+return Widok logowania
+
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory
+participant facade
+end box
