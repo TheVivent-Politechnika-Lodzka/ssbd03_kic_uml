@@ -2,9 +2,10 @@
 
 actor Administrator as admin
 boundary AccountPanelPage as gui
-control AccountEndpoint as controller
-control AccountService as service
+control MOKEndpoint as controller
+control MOKService as service
 control AccountFacade as facade
+control AccessLevelFacade as facadeLevel
 entity Account as account
 
 skinparam backgroundcolor transparent
@@ -19,7 +20,7 @@ group Transaction.Never
     group Transaction.Required
         group Transaction.ReadCommitted <<RO>>
             service -> facade ++ : findAllAccounts()
-            return account
+            return List<account>
         end
     end
 end
@@ -33,10 +34,11 @@ gui -> controller ++ : addAccessLevelToAccount()
 
 group Transaction.Never
     controller -> service ++ : addAccessLevelToAccount() 
-
-    group Transaction.ReadCommitted <<RO>>
-        service -> facade ++ : findByLogin(login)
-        return account
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findByLogin(login)
+            return account
+        end    
     end
 end
 
@@ -54,6 +56,7 @@ else użytkownik nie posiada poziomu dostępu
         group Transaction.ReadCommitted <<RW>>
             service -> facade ++ : addAccessLevelToAccount()
             facade -> account ** : edit(account)
+            service -> facadeLevel : create(accessLevel)
             return success
         end
     end

@@ -1,0 +1,39 @@
+@startuml MOP.1 - Dodaj wszczep
+
+actor Administrator as admin
+boundary ImplantPage as gui
+control MOPEndpoint as controller
+entity Implant as implant
+control MOPService as service
+control ImplantFacade as facade
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+admin -> gui ++ : Wywołanie formularza dodawania implantu
+gui -> controller ++ : createImplant()
+group Transaction.Never
+    controller -> implant **: <<create>>
+    controller -> service ++: createImplant()
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RW>>
+            alt implant już istnieje
+                service -> facade ++ : create(implant)
+                facade --> service --: failure
+            else sukces
+                service -> facade ++: create(implant)
+                return success
+            end
+        end
+    end
+end
+
+return success
+return HTTP 200 OK
+gui -> gui : <<render>>
+return Informacja o dodaniu implantu
+
+
+@enduml
