@@ -12,7 +12,7 @@ participant facade
 end box
 
 
-admin -> gui ++ : Wybranie konta do edycji
+admin -> gui ++ : Wybranie edycji konta
 gui -> controller ++ : editOwnAccount(accountWithAccesLevelDto)
 group Transaction.Never
     controller -> service ++ : editAccount(login,update,etag)
