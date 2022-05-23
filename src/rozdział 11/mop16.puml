@@ -1,0 +1,42 @@
+@startuml mop16 - usuń recenzję wszczepu
+
+
+actor "Administrator/Klient" as guest
+boundary formularz_edycji_recenzji as gui
+control MOPEndpoint as endpoint
+control MOPService as service
+control ImplantReviewFacade as accFacade
+
+skinparam backgroundcolor transparent
+
+guest -> gui ++ : Wciśnięcie przycisku usunięcia recenzji
+gui -> endpoint ++ : Żądanie usunięcia recenzji
+
+
+group Transaction.Never
+
+    endpoint -> service ++ : .deleteReview(review)
+
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RW>>
+            box Transaction.Mandatory 
+                participant accFacade
+                alt sukces
+                service -> accFacade ++: .remove(review)
+
+                else konto o podanym loginie istnieje
+                    accFacade --> service : wyjątek
+                end
+
+                deactivate accFacade
+            end box
+        end
+    end
+    return komunikat
+
+return komunikat
+end
+
+return komunikat
+
+@enduml

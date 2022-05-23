@@ -1,0 +1,66 @@
+@startuml MOK.8 - Zmiana hasła innego użytkownika
+
+actor Administrator as client
+boundary AccountPanelPage as gui
+control AccountEndpoint as controller
+control AccountService as service
+control AccountFacade as facade
+entity Account as account
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+client -> gui ++ : Wyświetl listę użytkowników
+gui -> controller ++ :  findAllAccounts()
+group Transaction.Never
+    controller -> service ++ : findAllAccounts()
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findAllAccounts()
+            return List<account>
+        end
+    end
+end
+return List<account>
+return List<account>
+gui --> gui : <<render>>
+return Formularz listy użytkowników
+
+client -> gui ++ :  Wybranie użytkownika i edycja jego hasła
+gui -> controller ++ : changeAccountPassword()
+group Transaction.Never
+    controller -> service ++ : changeAccountPassword() 
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findByLogin(login)
+            return account
+        end
+    end
+end
+alt poprawne dane
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RW>>
+        
+            service -> service : verify()
+            service -> facade ++ : changeAccountPassword()
+            facade -> account ** : edit(account)
+            return success
+        end
+    end
+    return success
+    return HTTP 200 OK
+    gui -> gui : <<render>>
+    return Informacja o zmianie hasła
+else niepoprawne dane
+    service -> service : verify()
+    service --> controller : failure
+    controller --> gui : Komunikat o błędzie
+    gui --> client : Informacja o braku zmiany hasła
+end
+
+
+
+
+@enduml
