@@ -11,10 +11,15 @@ entity Account as account
 
 admin -> gui ++ : Kliknięcie przycisku przy odpowiednim użytkowniku z lity
 gui -> controller ++ :  getAccount(login)
-controller -> service ++ : findAccountByLogin(login)
-group Transaction.ReadCommitted <<RO>>
-    service -> facade ++ : findAccountByLogin(login)
-    return account
+group Transaction.Never
+    controller -> service ++ : findAccountByLogin(login)
+    group Transaction.Required
+        group Transaction.ReadCommitted
+            <<RO>>
+            service -> facade ++ : findAccountByLogin(login)
+            return account
+        end
+    end
 end
 return account
 return account
@@ -22,6 +27,6 @@ gui --> gui : <<render>>
 return Widok szczegółów konta wybranego użytkownika
 
 skinparam backgroundcolor transparent
-box Transaction.Mandatory 
-    participant facade
+box Transaction.Mandatory
+participant facade
 end box

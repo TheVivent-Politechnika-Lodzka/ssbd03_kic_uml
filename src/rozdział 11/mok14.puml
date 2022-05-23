@@ -10,25 +10,37 @@ entity Account as account
 
 user -> gui ++ : Wybór widoku logowania
 gui -> controller ++ : resetPassword(login)
-controller -> service ++ : resetPassword(login)
-group Transaction.ReadCommitted <<RW>>
-    service -> r_facade ++ : create(resetPasswordToken)
-    return resetPasswordToken
-    service -> facade ++ : setAccount(resetPasswordToken)
-    return resetPasswordToken
+group Transaction.Never
+    controller -> service ++ : resetPassword(login)
+    group Transaction.Required
+        group Transaction.ReadCommitted<<RW>>
+            service -> r_facade ++ : create(resetPasswordToken)
+            return resetPasswordToken
+            service -> facade ++ : setAccount(resetPasswordToken)
+            return resetPasswordToken
+        end
+    end
 end
 return resetPasswordToken
 return komunikat
 return wysłanie maila z tokenem resetujacym
 
-user -> gui ++ : Wybór widoku logowania
+user -> gui ++ : Wprowadzenie tokenu
 gui -> controller ++ :  resetPasswordToken(resetPasswordDto)
-controller -> service ++ : confirmResetPassword(login,password,token)
-group Transaction.ReadCommitted <<RW>>
-    service -> r_facade ++ : findResetPasswordToken(login) 
-    return account
-    service -> facade ++ : unsafeEdit(account)
-    return account
+group Transaction.Never
+    controller -> service ++ : confirmResetPassword(login,password,token)
+    group Transaction.Required
+        group Transaction.ReadCommitted<<RW>>
+        alt Token został wygenerowany
+            service -> r_facade ++ : findResetPasswordToken(login)
+            return account
+            service -> facade ++ : unsafeEdit(account)
+            return account
+        else Token nieprawidłowy
+         service -> r_facade ++ : findResetPasswordToken(login)
+         return TokenInvalidException()
+        end
+    end
 end
 return account
 return 200 Ok
@@ -37,6 +49,6 @@ return Widok logowania
 
 
 skinparam backgroundcolor transparent
-box Transaction.Mandatory 
-    participant facade
+box Transaction.Mandatory
+participant facade
 end box

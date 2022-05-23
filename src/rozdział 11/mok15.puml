@@ -9,10 +9,14 @@ entity Account as account
 
 user -> gui ++ : Wybór widoku konta
 gui -> controller ++ :  getOwnAccount()
-controller -> service ++ : findAccountByLogin(login)
-group Transaction.ReadCommitted <<RO>>
-    service -> facade ++ : findByLogin(login)
-    return account
+group Transaction.Never
+    controller -> service ++ : findAccountByLogin(login)
+    group Transaction.Required
+        group Transaction.ReadCommitted<<RO>>
+            service -> facade ++ : findByLogin(login)
+            return account
+        end
+    end
 end
 return account
 return account
@@ -20,6 +24,6 @@ gui --> gui : <<render>>
 return Widok szczegółów własnego konta
 
 skinparam backgroundcolor transparent
-box Transaction.Mandatory 
-    participant facade
+box Transaction.Mandatory
+participant facade
 end box
