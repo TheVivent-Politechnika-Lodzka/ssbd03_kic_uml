@@ -1,0 +1,34 @@
+@startuml MOP.6 przeglądaj listę specjalistów
+
+actor Administrator as client
+boundary ImplantPage as gui
+control MOPEndpoint as controller
+control MOPService as service
+entity Implant as implant
+control ImplantFacade as facade
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+client -> gui ++ : Wyświetl listę specjalistów
+gui -> controller ++ :  getAllSpecialists(page,limit,phrase)
+group Transaction.Never
+    alt page = 0 / size = 0 
+    controller -> service ++ : findAllSpecialists(page,limit,phrase)
+    return InvalidParameterException()
+    else
+    controller -> service ++ : findAllSpecialists(page,limit,phrase)
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findAllSpecialists()
+            return List<account>
+        end
+    end
+    end
+end
+return List<account>
+return List<account>
+gui --> gui : <<render>>
+return Lista wszczepów

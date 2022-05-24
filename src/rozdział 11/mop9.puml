@@ -1,8 +1,7 @@
-@startuml MOP.14 - Oznacz wizytę jako zakończoną
+@startuml MOP.9 - Zarezerwuj wizytę
 
-
-actor Specjalista as guest
-boundary formularz_edycji_wizyty as gui
+actor "Klient/Specjalista" as guest
+boundary formularz_rezerwacji_wizyty as gui
 control MOPEndpoint as endpoint
 control MOPService as service
 entity Appointment as implant
@@ -10,26 +9,26 @@ control AppointmentFacade as accFacade
 
 skinparam backgroundcolor transparent
 
-guest -> gui ++ : Wciśnięcie przycisku zakończenia wizyty
-gui -> endpoint ++ : Wysłanie żądania zakończenia wizyty
+guest -> gui ++ : Wciśnięcie przycisku rezerwacji wizyty
+gui -> endpoint ++ : Wysłanie żądania rezerwacji wizyty
 
 group Transaction.Never
 
-    endpoint -> service ++ : .finishAppointment(appointmentId)
+    endpoint -> service ++ : bookAppointment(appointmentId)
 
     group Transaction.Required
         group Transaction.ReadCommitted <<RW>>
             box Transaction.Mandatory 
                 participant accFacade
                 alt sukces
-                service -> accFacade ++ : .find(appointmentId)
+                service -> accFacade ++ : bookAppointment(appointmentId)
                 accFacade --> service : appointment
 
-                service -> implant **: .setStatus(FINISHED)
+                service -> implant ** : setStatus(REJECTED)
 
-                service -> accFacade : .edit(appointment)
+                service -> accFacade : bookAppointment(appointment)
 
-                else wizyta jest już zakończona/nie istnieje
+                else wizyta nie istnieje
                     accFacade --> service : wyjątek
                 end
 

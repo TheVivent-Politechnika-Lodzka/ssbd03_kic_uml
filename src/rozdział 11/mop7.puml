@@ -1,0 +1,34 @@
+@startuml MOP.7 przeglądaj wszystkie wizyty
+
+actor Administrator as client
+boundary AppointmentPage as gui
+control MOPEndpoint as controller
+control MOPService as service
+entity Appointment as appointment
+control AppointmentFacade as facade
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+client -> gui ++ : Wyświetl listę wizyt
+gui -> controller ++ :  getAllAppointments(page,limit,phrase)
+group Transaction.Never
+    alt page = 0 / size = 0 
+    controller -> service ++ : findAllAppointments(page,limit,phrase)
+    return InvalidParameterException()
+    else
+    controller -> service ++ : findAllAppointments(page,limit,phrase)
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findAllAppointments()
+            return List<appointment>
+        end
+    end
+    end
+end
+return List<appointment>
+return List<appointment>
+gui --> gui : <<render>>
+return Lista wizyt

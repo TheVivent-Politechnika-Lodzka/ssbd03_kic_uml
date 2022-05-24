@@ -1,0 +1,34 @@
+@startuml MOP.5 przeglądaj listę wszczepów
+
+actor Administrator as client
+boundary ImplantPage as gui
+control MOPEndpoint as controller
+control MOPService as service
+entity Implant as implant
+control ImplantFacade as facade
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+client -> gui ++ : Wyświetl listę wszczepów
+gui -> controller ++ :  getAllImplants(page,limit,phrase)
+group Transaction.Never
+    alt page = 0 / size = 0 
+    controller -> service ++ : findAllImplants(page,limit,phrase)
+    return InvalidParameterException()
+    else
+    controller -> service ++ : findAllImplants(page,limit,phrase)
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findAllImplants()
+            return List<implant>
+        end
+    end
+    end
+end
+return List<implant>
+return List<implant>
+gui --> gui : <<render>>
+return Lista wszczepów

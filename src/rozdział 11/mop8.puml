@@ -1,0 +1,35 @@
+@startuml MOP.8 Przeglądaj swoje wizyty
+
+actor Użytkownik as client
+boundary UserPage as gui
+control MOPEndpoint as controller
+control MOPService as service
+entity Appointment as appointment
+control AppointmentFacade as facade
+
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+client -> gui ++ : Wyświetl listę wizyt
+gui -> controller ++ :  getUserAppointments(page,limit,phrase)
+group Transaction.Never
+    alt page = 0 / size = 0 
+    controller -> service ++ : findUserAppointments(page,limit,phrase)
+    return InvalidParameterException()
+    else
+    controller -> service ++ : findUserAppointments(page,limit,phrase)
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findUserAppointments()
+            return List<appointment>
+        end
+    end
+    end
+end
+return List<appointment>
+return List<appointment>
+gui --> gui : <<render>>
+return Lista wizyt

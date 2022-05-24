@@ -1,0 +1,33 @@
+@startuml MOP.4 - przeglądaj szczegóły wszczepu
+
+actor Administrator as admin
+boundary ImplantPage as gui
+control MOPEndpoint as controller
+control MOPService as service
+entity Implant as implant
+control ImplantFacade as facade
+
+skinparam backgroundcolor transparent
+box Transaction.Mandatory 
+    participant facade
+end box
+
+admin -> gui ++ : Kliknięcie przycisku przy odpowiednim wszczepie z listy
+gui -> controller ++ : getImplant(id)
+group Transaction.Never
+    controller -> service ++ : findImplantById(id)
+    group Transaction.Required
+        group Transaction.ReadCommitted <<RO>>
+            service -> facade ++ : findImplantById(id)
+            return implant
+        end
+    end
+end
+return implant
+return implant
+gui --> gui : <<render>>
+return Widok szczegółów wybranego wszczepu
+
+
+
+@enduml
