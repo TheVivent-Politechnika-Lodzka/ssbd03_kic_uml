@@ -2,7 +2,7 @@
 
 
 actor Administrator as guest
-boundary formularz_utworzenia_konta as gui
+boundary formularz_utworzenia_recenzji as gui
 control MOKEndpoint as endpoint
 entity ImplantReview as account
 control MOKService as service

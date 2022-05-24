@@ -31,4 +31,4 @@ end
 return List<account>
 return List<account>
 gui --> gui : <<render>>
-return Formularz listy użytkowników
+return Lista użytkowników
