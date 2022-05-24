@@ -4,7 +4,6 @@ actor Administrator as client
 boundary ImplantPage as gui
 control MOPEndpoint as controller
 control MOPService as service
-entity Implant as implant
 control ImplantFacade as facade
 
 skinparam backgroundcolor transparent
@@ -31,4 +30,4 @@ end
 return List<account>
 return List<account>
 gui --> gui : <<render>>
-return Lista wszczepów
+return Lista specjalistów

@@ -4,7 +4,6 @@ actor Administrator as client
 boundary AppointmentPage as gui
 control MOPEndpoint as controller
 control MOPService as service
-entity Appointment as appointment
 control AppointmentFacade as facade
 
 skinparam backgroundcolor transparent

@@ -4,7 +4,6 @@ actor Użytkownik as client
 boundary UserPage as gui
 control MOPEndpoint as controller
 control MOPService as service
-entity Appointment as appointment
 control AppointmentFacade as facade
 
 
@@ -32,4 +31,4 @@ end
 return List<appointment>
 return List<appointment>
 gui --> gui : <<render>>
-return Lista wizyt
+return Lista własnych wizyt
