@@ -1,4 +1,4 @@
-@startuml MOK12 Zaloguj
+@startuml MOK12 - Zaloguj
 
 actor Gość as user
 boundary Formularz_logowania as gui
@@ -8,7 +8,7 @@ control IdentityStore as auth
 
 
 user -> gui ++ : Przekazanie danych do formularza
-gui -> controller ++ : login(LoginCredentialsDto)
+gui -> controller ++ : login()
 group Transaction.Never
 controller -> service ++ : authenticate(login,password)
     group Transaction.Required

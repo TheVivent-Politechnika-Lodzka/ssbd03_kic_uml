@@ -7,7 +7,6 @@ boundary AccountPanelPage as gui
 control AccountEndpoint as controller
 control AccountService as service
 control AccountFacade as facade
-entity Account as account
 
 admin -> gui ++ : Kliknięcie przycisku przy odpowiednim użytkowniku z listy
 gui -> controller ++ :  getAccount(login)

@@ -19,9 +19,9 @@ group Transaction.Never
     group Transaction.Required
         group Transaction.ReadCommitted <<RW>>
             service -> facade ++ : findByLogin(login)
-            facade -> account : result
+            facade --> service : result
             service -> service : <<check>>
-            service -> account : setActive(false)
+            service -> account ** : setActive(false)
             service -> facade : edit(account)
             return success
         end
@@ -41,7 +41,7 @@ alt użytkownik jest zablokowany
             group Transaction.Required
                 group Transaction.ReadCommitted <<RW>>
                     service -> facade ++: findByLogin(login)
-                    facade -> account  : result
+                    facade --> service  : result
                     service -> service : <<check>>
                 
                     return failure

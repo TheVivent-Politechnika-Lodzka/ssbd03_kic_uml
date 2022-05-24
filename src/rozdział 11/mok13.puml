@@ -1,4 +1,4 @@
-@startuml MOK.13 przeglądaj listę wszystkich kont
+@startuml MOK.13 - Przeglądaj listę wszystkich kont
 
 actor Administrator as client
 boundary AdminPage as gui
@@ -13,13 +13,13 @@ box Transaction.Mandatory
 end box
 
 client -> gui ++ : Wyświetl listę użytkowników
-gui -> controller ++ :  getAllAccounts(page,limit,phrase)
+gui -> controller ++ :  getAllAccounts(page,limit)
 group Transaction.Never
     alt page = 0 / size = 0 
-    controller -> service ++ : findAllAccounts(page,limit,phrase)
+    controller -> service ++ : findAllAccounts(page,limit)
     return InvalidParameterException()
     else
-    controller -> service ++ : findAllAccounts(page,limit,phrase)
+    controller -> service ++ : findAllAccounts(page,limit)
     group Transaction.Required
         group Transaction.ReadCommitted <<RO>>
             service -> facade ++ : findAllAccounts()
